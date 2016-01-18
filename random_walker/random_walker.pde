@@ -15,14 +15,11 @@ class Walker {
   void step() {
     int choice = int(random(4));
     
-    if(choice == 0) {
-      x++;
-    } else if(choice == 1) {
-      x--;
-    } else if(choice ==2) {
-      y++;
-    } else {
-      y--;
+    switch(choice) {
+      case 0: x++; break;
+      case 1: x--; break;
+      case 2: y++; break;
+      case 3: x--; break;
     }
   }
 }
