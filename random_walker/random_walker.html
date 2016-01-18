@@ -15,7 +15,34 @@
 
 	<script>
 	(function(){
-		var context;
+		var context, walker;
+
+		function Walker(context, x, y) {
+			this.context = context;
+			this.x = x || context.canvas.width / 2 || 0;
+			this.y = y || context.canvas.height / 2 || 0;
+		}
+
+		Walker.prototype.step = function () {
+			var choice = parseInt( Math.random() * 4, 10 );
+
+			switch( choice ) {
+				case 0: this.x += 1; break;
+				case 1: this.x -= 1; break;
+				case 2: this.y += 1; break;
+				case 3: this.y -= 1; break;
+			}
+
+			return this;
+		}
+
+		Walker.prototype.display = function () {
+			this.context.fillStyle = 'rgb(0,0,0);';
+			this.context.fillRect( this.x, this.y, 1, 1 );
+// debugger;
+			return this;
+		}
+
 
 		function setupCanvas(width, height) {
 			var canvas = document.createElement( 'canvas' );
@@ -30,16 +57,22 @@
 
 		function setup () {
 			context = setupCanvas(100,100);
+			walker = new Walker( context );
 		}
 
 		function draw () {
-			context.fillStyle = 'rgb(0,0,0);';
-			context.fillRect( 50, 50, 1, 1 );
+			walker.step();
+			walker.display();
+			// requestAnimationFrame( draw );
 		}
 
 		// setup and draw loop
 		setup();
-		requestAnimationFrame( draw );
+		requestAnimationFrame( function drawLoop () {
+			draw();
+			requestAnimationFrame( drawLoop );
+		});
+
 	})();
 	</script>
 </html>
