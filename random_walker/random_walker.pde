@@ -14,9 +14,9 @@ class Walker {
 
   void step() {
     float r = random(1);
-    int choice = int(random(3));
+    int choice = int(random(4));
 
-    if (mousePressed && r < 0.3) {
+    if (mousePressed && r < 0.2) {
       x += mouseX < x? -1: 1;      
       y += mouseY < y? -1: 1;      
       return;  
