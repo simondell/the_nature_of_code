@@ -17,6 +17,7 @@
 	(function(){
 		var context, walker;
 
+		// A Walker "class"
 		function Walker(context, x, y) {
 			this.context = context;
 			this.x = x || context.canvas.width / 2 || 0;
@@ -39,7 +40,7 @@
 		Walker.prototype.display = function () {
 			this.context.fillStyle = 'rgb(0,0,0);';
 			this.context.fillRect( this.x, this.y, 1, 1 );
-// debugger;
+
 			return this;
 		}
 
@@ -61,9 +62,7 @@
 		}
 
 		function draw () {
-			walker.step();
-			walker.display();
-			// requestAnimationFrame( draw );
+			walker.step().display();
 		}
 
 		// setup and draw loop

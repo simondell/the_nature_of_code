@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+		<meta charset="UTF-8">
+		<title>JavaScript random number distribution</title>
+
+		<style>
+		canvas {
+			border: 1px solid grey;
+		}
+		</style>
+</head>
+<body>
+	<p>A graph hinting at the distribution of randomness in JavaScript's <code>Math.random()</code> function.</p>
+
+</body>
+
+	<script>
+	var Frames = ( function () {
+		var context;
+
+		//
+		// helper functions
+		//
+		function setupCanvas(width, height) {
+			var canvas = document.createElement( 'canvas' );
+
+			context = canvas.getContext( '2d' );
+
+			canvas.width = width || window.innerWidth;
+			canvas.height = width || window.innerHeight;
+			document.body.appendChild( canvas );
+
+			return context;
+		}
+
+		function clearContext () {
+			context.clearRect( 0, 0, context.canvas.width, context.canvas.height );
+		}
+
+		return {
+			setupCanvas: setupCanvas,
+			clearContext: clearContext
+		};
+	})();
+
+
+
+	(function( Frames ){
+			var RANDOMS_COUNT = 20;
+			var context, randomCounts;
+
+			//
+			// implement these functions so the "framework" will run
+			//
+			function setup () {
+				var loop = RANDOMS_COUNT;
+				randomCounts = [];
+
+				while( loop-- ) randomCounts.push( 0 );
+
+				context = Frames.setupCanvas( 640, 240 );
+			}
+
+			function draw () {
+				var columnWidth = context.canvas.width / RANDOMS_COUNT;
+				var columnHeight = context.canvas.height;
+				var index = parseInt( Math.random() * RANDOMS_COUNT, 10 );
+				var step;
+
+				Frames.clearContext();
+
+				randomCounts[ index ] += 1;
+
+				context.fillStyle = 'rgb(175, 175, 175)';
+				context.strokeStyle = 'black';
+
+				for( step = 0; step < RANDOMS_COUNT; step++ ) {
+					context.fillRect( step * columnWidth, columnHeight - randomCounts[ step ], columnWidth - 1, randomCounts[ step ] );
+				}
+			}
+
+
+
+
+			//
+			// the framework/helpers/etc
+			// setup and draw loop
+			//
+
+			setup();
+
+			requestAnimationFrame( function drawLoop () {
+				draw();
+				requestAnimationFrame( drawLoop );
+			});
+
+	})( Frames );
+	</script>
+</html>
