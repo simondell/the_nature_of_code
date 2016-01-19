@@ -25,14 +25,12 @@
 		}
 
 		Walker.prototype.step = function () {
-			var choice = parseInt( Math.random() * 4, 10 );
+			var bias = [-1, -1, -1, -1, 1, 1, 1, 1, 1 ];
+			var stepX = bias[ parseInt( Math.random() * 9, 10 ) ];
+			var stepY = bias[ parseInt( Math.random() * 9, 10 ) ];
 
-			switch( choice ) {
-				case 0: this.x += 1; break;
-				case 1: this.x -= 1; break;
-				case 2: this.y += 1; break;
-				case 3: this.y -= 1; break;
-			}
+			this.x += stepX;
+			this.y += stepY;
 
 			return this;
 		}
@@ -40,7 +38,6 @@
 		Walker.prototype.display = function () {
 			this.context.fillStyle = 'rgb(0,0,0);';
 			this.context.fillRect( this.x, this.y, 1, 1 );
-
 			return this;
 		}
 
