@@ -14,8 +14,67 @@
 </body>
 
 	<script>
-	(function(){
+	var Frames = ( function () {
+		var mouseX = 0 ;
+		var mouseY = 0;
+		var mousePressed = false;
+		var context;
+
+		function setMouseXY ( event ) {
+			mouseX = event.pageX;
+			mouseY = event.pageY;
+		}
+
+		function setMousePressedTrue ( event ) {
+			mousePressed = true;
+		}
+
+		function setMousePressedFalse ( event ) {
+			mousePressed = false;
+		}
+
+		//
+		// helper functions
+		//
+		function setupCanvas(width, height) {
+			var canvas = document.createElement( 'canvas' );
+
+			context = canvas.getContext( '2d' );
+
+			canvas.width = width || window.innerWidth;
+			canvas.height = width || window.innerHeight;
+			document.body.appendChild( canvas );
+
+			canvas.addEventListener( 'mouseenter', setMouseXY );
+			canvas.addEventListener( 'mousemove', setMouseXY );
+			canvas.addEventListener( 'mousedown', setMousePressedTrue );
+			canvas.addEventListener( 'mouseup', setMousePressedFalse );
+
+			return context;
+		}
+
+		function clearCanvas () {
+			context.clearRect( 0, 0, context.canvas.width, context.canvas.height );
+		}
+
+		return {
+			setupCanvas: setupCanvas,
+			clearCanvas: clearCanvas,
+			mouseX: function getMouseX () { return mouseX || 0; },
+			mouseY: function getMouseY () { return mouseY || 0; },
+			mousePressed: function getMousePressed () { return mousePressed; }
+		};
+	})();
+
+	(function( Frames ){
 		var context, walker;
+
+		function randomInt ( max ) {
+			if( max == 0 ) throw 'random() cannot accept 0 for its max value';
+			if( max == undefined ) max = 1;
+
+			return parseInt( Math.random() * max, 10 );
+		}
 
 		// A Walker "class"
 		function Walker(context, x, y) {
@@ -25,12 +84,20 @@
 		}
 
 		Walker.prototype.step = function () {
-			var bias = [-1, -1, -1, -1, 1, 1, 1, 1, 1 ];
-			var stepX = bias[ parseInt( Math.random() * 9, 10 ) ];
-			var stepY = bias[ parseInt( Math.random() * 9, 10 ) ];
+			var random = Math.random();
+			var choice = randomInt( 4 );
 
-			this.x += stepX;
-			this.y += stepY;
+			if( Frames.mousePressed() && random < 0.2 ) {
+				this.x += Frames.mouseX() < this.x? -1: 1;
+				this.y += Frames.mouseY() < this.y? -1: 1;
+			} else {
+				switch( choice ) {
+					case 0: this.x++; break;
+					case 1: this.x--; break;
+					case 2: this.y++; break;
+					case 3: this.y--; break;
+				}
+			}
 
 			return this;
 		}
@@ -38,23 +105,12 @@
 		Walker.prototype.display = function () {
 			this.context.fillStyle = 'rgb(0,0,0);';
 			this.context.fillRect( this.x, this.y, 1, 1 );
+
 			return this;
 		}
 
-
-		function setupCanvas(width, height) {
-			var canvas = document.createElement( 'canvas' );
-			var c = canvas.getContext( '2d' );
-
-			canvas.width = width || window.innerWidth;
-			canvas.height = width || window.innerHeight;
-			document.body.appendChild( canvas );
-
-			return c;
-		}
-
 		function setup () {
-			context = setupCanvas(100,100);
+			context = Frames.setupCanvas(100,100);
 			walker = new Walker( context );
 		}
 
@@ -69,6 +125,6 @@
 			requestAnimationFrame( drawLoop );
 		});
 
-	})();
+	})( Frames );
 	</script>
 </html>
