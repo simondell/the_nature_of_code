@@ -127,30 +127,25 @@
 		})();
 
 		(function( Frames, Random ){
+				var canvasWidth = 640;
+				var canvasHeight = 360;
 				var context;
 
-				function makeCircleOfRadius ( rad ) {
-					return function circle ( x, y ) {
-						context.beginPath();
-						context.arc( x, y, rad, 0, 2 * Math.PI );
-						context.fill();
-					}
-				}
-
-				var drawDisc = makeCircleOfRadius( 16 );
-
 				function setup () {
-					context = Frames.setupCanvas( 640, 360 );
-					context.fillStyle = 'rgba(255,255,255,0.1)';
+					context = Frames.setupCanvas( canvasWidth, canvasHeight );
 				}
 
 				function draw () {
-					// The normal generator from Random.js requires a mean and SD be passed in
-					//  meaning the variables for these needed by Java/Processing's version
-					//  are not needed here
-					var randomGaussian = Random.normal( 320, 60 );
+					var x = parseInt( Random.normal( canvasWidth / 2, 60 ), 10 );
+					var y = parseInt( Random.normal( canvasHeight / 2, 60 ), 10 );
+					var red = parseInt( Random.normal( 125, 40 ), 10 );
+					var green = parseInt( Random.normal( 125, 40 ), 10 );
+					var blue = parseInt( Random.normal( 125, 40 ), 10 );
 
-					drawDisc( randomGaussian, 180 );
+					context.beginPath();
+					context.fillStyle = 'rgba('+ red +','+ green +','+ blue +',0.1 )';
+					context.arc( x, y, 8, 0, 2 * Math.PI );
+					context.fill();
 				}
 
 				Frames.go( setup, draw );
