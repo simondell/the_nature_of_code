@@ -1,23 +1,28 @@
 import java.util.Random;
 
 Random generator;
- 
+
 void setup() {
   size(640,360);
   generator = new Random();
 }
 
-void draw() {
-//Note that nextGaussian() returns a double.
+float gaussian( float mu, float sigma ) {
   float num = (float) generator.nextGaussian();
-  float sd = 60;
-  float mean = 320;
- 
-//Multiply by the standard deviation and add the mean.
-  float x = sd * num + mean;
- 
-  noStroke();
-  fill(255,10);
-  ellipse(x,180,16,16);
+  float ret = sigma * num + mu;
 
+  return ret;
+}
+
+void draw() {
+  noStroke();
+
+  int red = (int) gaussian( 125, 60 ); 
+  int green = (int) gaussian( 125, 60 ); 
+  int blue = (int) gaussian( 125, 60 ); 
+  fill( red, green, blue, 50 );
+
+  float x = gaussian( 320, 60 );
+  float y = gaussian( 180, 60 ); 
+  ellipse( x, y, 8, 8 );
 }
