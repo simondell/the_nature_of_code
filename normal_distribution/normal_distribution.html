@@ -23,25 +23,27 @@
 			var setupCallback = null;
 			var drawCallback = null;
 
-			var mouseX = 0 ;
-			var mouseY = 0;
-			var mousePressed = false;
+			var mouse = {
+				x: null,
+				y: null,
+				pressed: false
+			}
 
 
 			//
 			// event handlers
 			//
 			function setMouseXY ( event ) {
-					mouseX = event.pageX;
-					mouseY = event.pageY;
+				mouse.x = event.pageX;
+				mouse.y = event.pageY;
 			}
 
 			function setMousePressedTrue ( event ) {
-					mousePressed = true;
+				mouse.pressed = true;
 			}
 
 			function setMousePressedFalse ( event ) {
-					mousePressed = false;
+				mouse.pressed = false;
 			}
 
 
@@ -116,36 +118,47 @@
 			// Public API
 			//
 			return {
-					setupCanvas: setupCanvas,
-					clearCanvas: clearCanvas,
-					mouseX: function getMouseX () { return mouseX || 0; },
-					mouseY: function getMouseY () { return mouseY || 0; },
-					mousePressed: function getMousePressed () { return mousePressed; },
-					go: go,
-					stop: stop
+				go: go,
+				stop: stop,
+				setupCanvas: setupCanvas,
+				clearCanvas: clearCanvas,
+				mouse: mouse
 			};
 		})();
 
 		(function( Frames, Random ){
 				var canvasWidth = 640;
 				var canvasHeight = 360;
-				var context;
+				var context = null;
+				var canvas = null;
+				var mousedown = false;
+				var red, green, blue;
 
 				function setup () {
 					context = Frames.setupCanvas( canvasWidth, canvasHeight );
+					canvas = context.canvas;
+
+					canvas.addEventListener( 'mousedown', handleMouseDown );
 				}
 
 				function draw () {
-					var x = parseInt( Random.normal( canvasWidth / 2, 60 ), 10 );
-					var y = parseInt( Random.normal( canvasHeight / 2, 60 ), 10 );
-					var red = parseInt( Random.normal( 125, 40 ), 10 );
-					var green = parseInt( Random.normal( 125, 40 ), 10 );
-					var blue = parseInt( Random.normal( 125, 40 ), 10 );
+					var x, y;
+
+					if( !Frames.mouse.pressed ) return;
+
+					x = parseInt( Random.normal( Frames.mouse.x, 12 ), 10 );
+					y = parseInt( Random.normal( Frames.mouse.y, 12 ), 10 );
 
 					context.beginPath();
-					context.fillStyle = 'rgba('+ red +','+ green +','+ blue +',0.1 )';
 					context.arc( x, y, 8, 0, 2 * Math.PI );
 					context.fill();
+				}
+
+				function handleMouseDown () {
+					red = parseInt( Random.normal( 125, 40 ), 10 );
+					green = parseInt( Random.normal( 125, 40 ), 10 );
+					blue = parseInt( Random.normal( 125, 40 ), 10 );
+					context.fillStyle = 'rgba('+ red +','+ green +','+ blue +',0.1 )';
 				}
 
 				Frames.go( setup, draw );
