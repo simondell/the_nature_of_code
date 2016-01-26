@@ -18,71 +18,73 @@
 
 
 	<script>
-	(function( Frames, Random ){
-		var canvasWidth = 640;
-		var canvasHeight = 360;
-		var context = null;
+    (function( Frames, Random ){
+        var canvasWidth = 640;
+        var canvasHeight = 360;
+        var context = null;
 
-		// A Walker "class"
-		function Walker(context, x, y) {
-			this.context = context;
-			this.x = x;
-			this.y = y;
-			this.stepSize = 0;
-		}
+        // A Walker "class"
+        function Walker(context, x, y) {
+            this.context = context;
+            this.x = x;
+            this.y = y;
+            this.stepSize = 0;
+        }
 
-		Walker.prototype.step = function () {
-			var sigma = 3;
-			var mu = 10;
+        Walker.prototype.step = function () {
+            var sigma = 3;
+            var mu = 10;
 
-			this.stepSize = Random.normal( mu, sigma );
+            this.stepSize = Random.normal( mu, sigma );
 
-			return this;
-		}
+            return this;
+        }
 
-		Walker.prototype.display = function () {
-			var choice = parseInt( Math.random() * 4, 10  );
-			var new_x, new_y;
+        Walker.prototype.display = function () {
+            var choice = parseInt( Math.random() * 4, 10  );
+            var new_x, new_y;
 
-			switch( choice ) {
-			case 0:
-				new_x = this.x + this.stepSize;
-				new_y = this.y;
-				break;
-			case 1:
-				new_x = this.x - this.stepSize;
-				new_y = this.y;
-				break;
-			case 2:
-				new_x = this.x;
-				new_y = this.y + this.stepSize;
-				break;
-			case 3:
-				new_x = this.x;
-				new_y = this.y - this.stepSize;
-				break;
-			}
+            switch( choice ) {
+            case 0:
+                new_x = this.x + this.stepSize;
+                new_y = this.y;
+                break;
+            case 1:
+                new_x = this.x - this.stepSize;
+                new_y = this.y;
+                break;
+            case 2:
+                new_x = this.x;
+                new_y = this.y + this.stepSize;
+                break;
+            case 3:
+                new_x = this.x;
+                new_y = this.y - this.stepSize;
+                break;
+            }
 
-			this.context.fillStyle = 'rgb(0,0,0)';
-			this.context.fillRect( new_x, new_y, 1, 1 );
+            this.context.lineWidth = 1;
+            this.context.strokeStyle = 'rgb(0,0,0)';
+            this.context.lineTo( new_x, new_y );
+            this.context.stroke();
 
-			this.x = new_x;
-			this.y = new_y;
+            this.x = new_x;
+            this.y = new_y;
 
-			return this;
-		}
+            return this;
+        }
 
-		function setup () {
-			context = Frames.setupCanvas( canvasWidth, canvasHeight );
-			walker = new Walker( context, context.canvas.width / 2, context.canvas.height / 2 );
-		}
+        function setup () {
+            context = Frames.setupCanvas( canvasWidth, canvasHeight );
+            walker = new Walker( context, context.canvas.width / 2, context.canvas.height / 2 );
+        }
 
-		function draw () {
-			walker.step().display();
-		}
+        function draw () {
+            walker.step().display();
+        }
 
-		Frames.go( setup, draw );
+        Frames.go( setup, draw );
 
-	})( Frames, new Random() );
+    })( Frames, new Random() );
 	</script>
 </html>
