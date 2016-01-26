@@ -13,118 +13,76 @@
 <body>
 </body>
 
+	<script src="random-0.26.js"></script>
+	<script src="frames.js"></script>
+
+
 	<script>
-	var Frames = ( function () {
-		var mouseX = 0 ;
-		var mouseY = 0;
-		var mousePressed = false;
-		var context;
-
-		function setMouseXY ( event ) {
-			mouseX = event.pageX;
-			mouseY = event.pageY;
-		}
-
-		function setMousePressedTrue ( event ) {
-			mousePressed = true;
-		}
-
-		function setMousePressedFalse ( event ) {
-			mousePressed = false;
-		}
-
-		//
-		// helper functions
-		//
-		function setupCanvas(width, height) {
-			var canvas = document.createElement( 'canvas' );
-
-			context = canvas.getContext( '2d' );
-
-			canvas.width = width || window.innerWidth;
-			canvas.height = width || window.innerHeight;
-			document.body.appendChild( canvas );
-
-			canvas.addEventListener( 'mouseenter', setMouseXY );
-			canvas.addEventListener( 'mousemove', setMouseXY );
-			canvas.addEventListener( 'mousedown', setMousePressedTrue );
-			canvas.addEventListener( 'mouseup', setMousePressedFalse );
-
-			return context;
-		}
-
-		function clearCanvas () {
-			context.clearRect( 0, 0, context.canvas.width, context.canvas.height );
-		}
-
-		return {
-			setupCanvas: setupCanvas,
-			clearCanvas: clearCanvas,
-			mouseX: function getMouseX () { return mouseX || 0; },
-			mouseY: function getMouseY () { return mouseY || 0; },
-			mousePressed: function getMousePressed () { return mousePressed; }
-		};
-	})();
-
-	(function( Frames ){
-		var context, walker;
-
-		function randomInt ( max ) {
-			if( max == 0 ) throw 'random() cannot accept 0 for its max value';
-			if( max == undefined ) max = 1;
-
-			return parseInt( Math.random() * max, 10 );
-		}
+	(function( Frames, Random ){
+		var canvasWidth = 640;
+		var canvasHeight = 360;
+		var context = null;
 
 		// A Walker "class"
 		function Walker(context, x, y) {
 			this.context = context;
-			this.x = x || context.canvas.width / 2 || 0;
-			this.y = y || context.canvas.height / 2 || 0;
+			this.x = x;
+			this.y = y;
+			this.stepSize = 0;
 		}
 
 		Walker.prototype.step = function () {
-			var random = Math.random();
-			var choice = randomInt( 4 );
+			var sigma = 3;
+			var mu = 10;
 
-			if( Frames.mousePressed() && random < 0.2 ) {
-				this.x += Frames.mouseX() < this.x? -1: 1;
-				this.y += Frames.mouseY() < this.y? -1: 1;
-			} else {
-				switch( choice ) {
-					case 0: this.x++; break;
-					case 1: this.x--; break;
-					case 2: this.y++; break;
-					case 3: this.y--; break;
-				}
-			}
+			this.stepSize = Random.normal( mu, sigma );
 
 			return this;
 		}
 
 		Walker.prototype.display = function () {
-			this.context.fillStyle = 'rgb(0,0,0);';
-			this.context.fillRect( this.x, this.y, 1, 1 );
+			var choice = parseInt( Math.random() * 4, 10  );
+			var new_x, new_y;
+
+			switch( choice ) {
+			case 0:
+				new_x = this.x + this.stepSize;
+				new_y = this.y;
+				break;
+			case 1:
+				new_x = this.x - this.stepSize;
+				new_y = this.y;
+				break;
+			case 2:
+				new_x = this.x;
+				new_y = this.y + this.stepSize;
+				break;
+			case 3:
+				new_x = this.x;
+				new_y = this.y - this.stepSize;
+				break;
+			}
+
+			this.context.fillStyle = 'rgb(0,0,0)';
+			this.context.fillRect( new_x, new_y, 1, 1 );
+
+			this.x = new_x;
+			this.y = new_y;
 
 			return this;
 		}
 
 		function setup () {
-			context = Frames.setupCanvas(100,100);
-			walker = new Walker( context );
+			context = Frames.setupCanvas( canvasWidth, canvasHeight );
+			walker = new Walker( context, context.canvas.width / 2, context.canvas.height / 2 );
 		}
 
 		function draw () {
 			walker.step().display();
 		}
 
-		// setup and draw loop
-		setup();
-		requestAnimationFrame( function drawLoop () {
-			draw();
-			requestAnimationFrame( drawLoop );
-		});
+		Frames.go( setup, draw );
 
-	})( Frames );
+	})( Frames, new Random() );
 	</script>
 </html>
