@@ -1,10 +1,14 @@
+import java.util.Random;
+
 class Walker {
   int x;
   int y;
+  Random generator;
 
-  Walker() {
+  Walker( Random gen ) {
     x = width/2;
     y = height/2;
+    generator = gen;
   }
 
   void display() {
@@ -13,23 +17,21 @@ class Walker {
   }
 
   void step() {
-    float r = random(1);
+    float stepSize = (float) generator.nextGaussian();
     int choice = int(random(4));
+    int mean = 10;
+    int sd = 3;
 
-    if (mousePressed && r < 0.2) {
-      x += mouseX < x? -1: 1;      
-      y += mouseY < y? -1: 1;      
-      return;  
-    }
-    
+    float distance = sd * stepSize + mean;
+
     if (choice == 0) {
-      x++;
+      x += distance;
     } else if (choice == 1) {
-      x--;
+      x -= distance;
     } else if (choice == 2) {
-      y++;
+      y += distance;
     } else {
-      y--;
+      y -= distance;
     }
   }
 }
@@ -37,7 +39,8 @@ class Walker {
 Walker w;
 
 void setup() {
-  w = new Walker();
+  size( 640, 360 );
+  w = new Walker( new Random() );
   background(255);
 }
 
