@@ -12,15 +12,22 @@ class Walker {
   }
 
   void display() {
-    stroke(0);
-    point(x,y);
+    float red, green, blue;
+
+    red = (float) generator.nextGaussian() * 125 + 60;
+    green = (float) generator.nextGaussian() * 125 + 60;
+    blue = (float) generator.nextGaussian() * 125 + 60;
+    
+    noStroke();
+    fill((int)red, (int)green, (int)blue, 30);
+    ellipse(x,y, 8, 8);
   }
 
   void step() {
     float stepSize = (float) generator.nextGaussian();
     int choice = int(random(4));
     int mean = 10;
-    int sd = 3;
+    int sd = 5;
 
     float distance = sd * stepSize + mean;
 
