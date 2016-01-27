@@ -1,44 +1,45 @@
 import java.util.Random;
 
 class Walker {
-  int prev_x;
-  int prev_y;
+  int x;
+  int y;
   Random generator;
 
   Walker( Random gen ) {
-    prev_x = width/2;
-    prev_y = height/2;
+    x = width/2;
+    y = height/2;
     generator = gen;
   }
 
-  void walk() {
+  void display() {
+    float red, green, blue;
+
+    red = (float) generator.nextGaussian() * 125 + 60;
+    green = (float) generator.nextGaussian() * 125 + 60;
+    blue = (float) generator.nextGaussian() * 125 + 60;
+    
+    noStroke();
+    fill((int)red, (int)green, (int)blue, 30);
+    ellipse(x,y, 8, 8);
+  }
+
+  void step() {
     float stepSize = (float) generator.nextGaussian();
     int choice = int(random(4));
     int mean = 10;
-    int sd = 3;
-    float new_x;
-    float new_y;
+    int sd = 5;
+
     float distance = sd * stepSize + mean;
 
     if (choice == 0) {
-      new_x = prev_x + distance;
-      new_y = (float) prev_y;
+      x += distance;
     } else if (choice == 1) {
-      new_x = prev_x - distance;
-      new_y = (float) prev_y;
+      x -= distance;
     } else if (choice == 2) {
-      new_y = prev_y + distance;
-      new_x = (float) prev_x;
+      y += distance;
     } else {
-      new_y = prev_y - distance;
-      new_x = (float) prev_x;
+      y -= distance;
     }
-
-    stroke(0);
-    line(prev_x, prev_y, new_x, new_y );
-
-    prev_x = (int) new_x;
-    prev_y = (int) new_y;
   }
 }
 
@@ -51,5 +52,6 @@ void setup() {
 }
 
 void draw() {
-  w.walk();
+  w.step();
+  w.display();
 }
