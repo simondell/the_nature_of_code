@@ -1,55 +1,39 @@
-import java.util.Random;
-
 class Walker {
-  int prev_x;
-  int prev_y;
-  Random generator;
-
-  Walker( Random gen ) {
-    prev_x = width/2;
-    prev_y = height/2;
-    generator = gen;
+  float x,y, step_x, step_y;
+ 
+  float tx,ty;
+ 
+  Walker() {
+    x = width / 2;
+    y = height / 2;
+    tx = 0;
+    ty = 10000;
+  }
+ 
+  void display() {
+    ellipse(x,y,16,16);
   }
 
-  void walk() {
-    float stepSize = (float) generator.nextGaussian();
-    int choice = int(random(4));
-    int mean = 10;
-    int sd = 3;
-    float new_x;
-    float new_y;
-    float distance = sd * stepSize + mean;
-
-    if (choice == 0) {
-      new_x = prev_x + distance;
-      new_y = (float) prev_y;
-    } else if (choice == 1) {
-      new_x = prev_x - distance;
-      new_y = (float) prev_y;
-    } else if (choice == 2) {
-      new_y = prev_y + distance;
-      new_x = (float) prev_x;
-    } else {
-      new_y = prev_y - distance;
-      new_x = (float) prev_x;
-    }
-
-    stroke(0);
-    line(prev_x, prev_y, new_x, new_y );
-
-    prev_x = (int) new_x;
-    prev_y = (int) new_y;
+  void step() {
+    step_x = map(noise(tx), 0, 1, -10, 10);
+    step_y = map(noise(ty), 0, 1, -10, 10);
+ 
+    x += step_x;
+    y += step_y;
+    tx += 0.01;
+    ty += 0.01;
   }
 }
 
 Walker w;
 
 void setup() {
-  size( 640, 360 );
-  w = new Walker( new Random() );
   background(255);
+  size( 640, 360 );
+  w = new Walker();
 }
 
 void draw() {
-  w.walk();
+  w.step();
+  w.display();
 }
