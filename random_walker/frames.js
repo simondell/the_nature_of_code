@@ -33,20 +33,20 @@ var Frames = ( function () {
 	// canvas functions
 	//
 	function setupCanvas(width, height) {
-			var canvas = document.createElement( 'canvas' );
+		var canvas = document.createElement( 'canvas' );
 
-			context = canvas.getContext( '2d' );
+		context = canvas.getContext( '2d' );
 
-			canvas.width = width || window.innerWidth;
-			canvas.height = height || window.innerHeight;
-			document.body.appendChild( canvas );
+		canvas.width = width || window.innerWidth;
+		canvas.height = height || window.innerHeight;
+		document.body.appendChild( canvas );
 
-			canvas.addEventListener( 'mouseenter', setMouseXY );
-			canvas.addEventListener( 'mousemove', setMouseXY );
-			canvas.addEventListener( 'mousedown', setMousePressedTrue );
-			canvas.addEventListener( 'mouseup', setMousePressedFalse );
+		canvas.addEventListener( 'mouseenter', setMouseXY );
+		canvas.addEventListener( 'mousemove', setMouseXY );
+		canvas.addEventListener( 'mousedown', setMousePressedTrue );
+		canvas.addEventListener( 'mouseup', setMousePressedFalse );
 
-			return context;
+		return context;
 	}
 
 

@@ -18,76 +18,68 @@
 
 
 	<script>
-	(function( Frames, Random ){
-		var canvasWidth = 640;
-		var canvasHeight = 360;
-		var context = null;
+		(function( Frames, Random ){
+			var canvasWidth = 640;
+			var canvasHeight = 360;
+			var context = null;
 
-		// A Walker "class"
-		function Walker(context, x, y) {
-			this.context = context;
-			this.x = x;
-			this.y = y;
-			this.stepSize = 0;
-		}
+			function probablyExponential ( max ) {
+				var r1, r2, probability;
 
-		Walker.prototype.step = function () {
-			var sigma = 4;
-			var mu = 15;
+				while ( true ) {
+					r1 = Random.uniform( 0, max );
+					probability = Math.pow( r1, 2);
+					r2 = Math.pow( Random.uniform( 0, max ), 2);
 
-			this.stepSize = Random.normal( mu, sigma );
-
-			return this;
-		}
-
-		Walker.prototype.display = function () {
-			var red = parseInt( Random.normal( 125, 70 ), 10 );
-			var green = parseInt( Random.normal( 125, 70 ), 10 );
-			var blue = parseInt( Random.normal( 125, 70 ), 10 );
-			var choice = parseInt( Math.random() * 4, 10  );
-			var new_x, new_y;
-
-			switch( choice ) {
-			case 0:
-				new_x = this.x + this.stepSize;
-				new_y = this.y;
-				break;
-			case 1:
-				new_x = this.x - this.stepSize;
-				new_y = this.y;
-				break;
-			case 2:
-				new_x = this.x;
-				new_y = this.y + this.stepSize;
-				break;
-			case 3:
-				new_x = this.x;
-				new_y = this.y - this.stepSize;
-				break;
+					if( r2 < probability ) return r1;
+				}
 			}
 
-			this.context.fillStyle = 'rgba('+ red +','+ green +','+ blue +',0.3 )';
-			this.context.beginPath();
-			this.context.arc( new_x, new_y, 8, 0, 2 * Math.PI );
-			this.context.fill();
+			// A Walker "class"
+			function Walker(context, x, y) {
+				this.context = context;
+				this.x = x;
+				this.y = y;
+			}
 
-			this.x = new_x;
-			this.y = new_y;
+			Walker.prototype.step = function () {
+				var max = 20;
+				var stepSize = probablyExponential( max );
 
-			return this;
-		}
+				this.new_x = this.x + Random.uniform( -stepSize, stepSize );
+				this.new_y = this.y + Random.uniform( -stepSize, stepSize );
 
-		function setup () {
-			context = Frames.setupCanvas( canvasWidth, canvasHeight );
-			walker = new Walker( context, context.canvas.width / 2, context.canvas.height / 2 );
-		}
+				return this;
+			}
 
-		function draw () {
-			walker.step().display();
-		}
+			Walker.prototype.display = function () {
+				this.context.lineWidth = 1;
+				this.context.strokeStyle = 'rgba(0,0,0,0.1)';
+				this.context.moveTo( x, y );
+				this.context.lineTo( this.new_x, this.new_y );
+				this.context.stroke();
 
-		Frames.go( setup, draw );
+				this.x = this.new_x;
+				this.y = this.new_y;
 
-	})( Frames, new Random() );
+				return this;
+			}
+
+
+			//
+			// get it walking
+			//
+			function setup () {
+				context = Frames.setupCanvas( canvasWidth, canvasHeight );
+				walker = new Walker( context, context.canvas.width / 2, context.canvas.height / 2 );
+			}
+
+			function draw () {
+				walker.step().display();
+			}
+
+			Frames.go( setup, draw );
+
+		})( Frames, new Random() );
 	</script>
 </html>
