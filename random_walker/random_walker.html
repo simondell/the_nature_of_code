@@ -46,14 +46,14 @@
 				var t = 0.03
 				var perlin_x = noise.perlin2( this.tx, t );
 				var perlin_y = noise.perlin2( this.ty, t );
-// debugger;
+
 				var stepX = mapToRange( perlin_x, -1, 1, -10, 10 );
 				var stepY = mapToRange( perlin_y, -1, 1, -10, 10 );
 
 				this.new_x = this.x + stepX;
 				this.new_y = this.y + stepY;
-				this.tx += 0.01;
-				this.ty += 0.01;
+				this.tx += 0.02;
+				this.ty += 0.02;
 
 				return this;
 			}
