@@ -1,21 +1,25 @@
-size(360,360);
-background(255);
-noiseDetail(8, 0.46);
-loadPixels();
-float xoff = 0.3;
- 
-for (int x = 0; x < width; x++) {
-  float yoff = 0.2;
- 
-  for (int y = 0; y < height; y++) {
-    float bright = map(noise(xoff,yoff),0,1,0,255);
-    if( bright < 80 ) {
-      pixels[x+y*width] = color( 190, 150, 255 - bright );
-    } else {
-      pixels[x+y*width] = color( 120, bright, 120 );
-    }
-    yoff += 0.01;
-  }
-  xoff += 0.01;
+void setup(){
+  size(360,360);
+  background(255);
+  noiseDetail(2,0.555);
 }
-updatePixels();
+
+float t = 0.01;
+
+void draw(){
+  loadPixels();
+  float xoff = 0.5;
+  
+  for (int x = 0; x < width; x++) {
+    float yoff = 0.5;
+   
+    for (int y = 0; y < height; y++) {
+      float bright = map(noise(xoff,yoff, t),0,1,0,255);
+      pixels[x+y*width] = color( bright / 1.5, 255 - bright, bright * 0.8 );
+      yoff += 0.015;
+    }
+    xoff += 0.015;
+    t += 0.00002;
+  }
+  updatePixels();
+}
