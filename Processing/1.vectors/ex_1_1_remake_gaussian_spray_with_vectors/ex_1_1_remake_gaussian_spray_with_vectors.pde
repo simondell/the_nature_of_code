@@ -3,6 +3,10 @@ import java.util.Random;
 Random generator;
 int red, green, blue;
 
+void ellipseVector( PVector location, float x_rad, float y_rad ) {
+    ellipse( location.x, location.y, x_rad, y_rad );
+}
+
 void setup() {
   size(640,360);
   noStroke();
@@ -19,9 +23,9 @@ float gaussian( float mu, float sigma ) {
 void draw() {
   if( !mousePressed ) return;
 
-  float x = gaussian( mouseX, 10 );
-  float y = gaussian( mouseY, 10 ); 
-  ellipse( x, y, 8, 8 );
+  PVector location = new PVector( gaussian( mouseX, 10 ), gaussian( mouseY, 10 ) );
+
+  ellipseVector( location, 8, 8 );
 }
 
 void mousePressed() {
