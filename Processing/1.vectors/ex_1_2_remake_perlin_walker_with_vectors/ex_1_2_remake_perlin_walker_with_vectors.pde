@@ -5,20 +5,17 @@ void vEllipse( PVector origin, float x_rad, float y_rad ) {
 
 class Walker {
   PVector origin;
-  PVector step;
+  PVector step = new PVector(0, 0);
   float tx,ty;
-  float radius;
+  float radius = 16;
  
   Walker() {
     origin = new PVector( width / 2, height / 2 ); 
-    radius = 16;
-    step = new PVector(0, 0);
     tx = 3;
     ty = 10000;
   }
  
   void display() {
-    //ellipse(x,y,16,16);
     vEllipse(origin, radius, radius);
   }
 
