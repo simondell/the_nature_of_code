@@ -18,7 +18,7 @@ class Mover {
   PVector location;
   PVector velocity;
   PVector acceleration;
-  float topspeed, noise_rate, noise_index_x, noise_index_y;
+  float topspeed, noise_rate, noise_index_x, noise_index_y, prev_noise_x, prev_noise_y;
  
   Mover() {
     location = new PVector(random(width),random(height));
@@ -28,12 +28,14 @@ class Mover {
     noise_rate = 0.04;
     noise_index_x = 0;
     noise_index_y = 15000;
+    prev_noise_x = noise(noise_index_x);
+    prev_noise_y = noise(noise_index_y);
   }
  
   void update() {
-    float acc_x = map(noise(noise_index_x), 0, 1, -0.1, 0.1);
-    float acc_y = map(noise(noise_index_y), 0, 1, -0.1, 0.1);
-    acceleration = new PVector(acc_x, acc_y);
+    float new_noise_x = noise(noise_index_x);
+    float new_noise_y = noise(noise_index_y);
+    acceleration = new PVector(new_noise_x - prev_noise_x, new_noise_y - prev_noise_y);
     velocity.add(acceleration);
     velocity.limit(topspeed);
     location.add(velocity);
