@@ -23,15 +23,18 @@ class Mover {
   Mover() {
     location = new PVector(random(width),random(height));
     velocity = new PVector(random(-2,2),random(-2,2));
-    acceleration = new PVector(-0.001,0.01);
-    topspeed = 10;
+    acceleration = new PVector(0,0);
+    topspeed = 14;
   }
  
   void update() {
     PVector mouse = new PVector(mouseX,mouseY);
-    PVector dir = PVector.sub(mouse,location).normalize();
-  
-    acceleration = PVector.mult(dir, 0.5);
+    PVector diff = PVector.sub(mouse,location);
+    float mag = diff.mag();
+    float inv_mag = 1 / diff.mag();
+
+    acceleration = PVector.mult(diff.normalize(), inv_mag );
+println(mag, inv_mag);
     velocity.add(acceleration);
     velocity.limit(topspeed);
     location.add(velocity);
