@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+		<meta charset="UTF-8">
+		<title>Gausian distribution</title>
+
+		<style>
+		canvas {
+			background-color: rgb(210,210,210);
+		}
+		</style>
+</head>
+<body>
+</body>
+
+		<script src="random-0.26.js"></script>
+
+		<script>
+		var Frames = ( function () {
+			var context = null;
+
+			var running = false;
+			var setupCallback = null;
+			var drawCallback = null;
+
+			var mouse = {
+				x: null,
+				y: null,
+				pressed: false
+			}
+
+
+			//
+			// event handlers
+			//
+			function setMouseXY ( event ) {
+				mouse.x = event.pageX;
+				mouse.y = event.pageY;
+			}
+
+			function setMousePressedTrue ( event ) {
+				mouse.pressed = true;
+			}
+
+			function setMousePressedFalse ( event ) {
+				mouse.pressed = false;
+			}
+
+
+			//
+			// canvas functions
+			//
+			function setupCanvas(width, height) {
+					var canvas = document.createElement( 'canvas' );
+
+					context = canvas.getContext( '2d' );
+
+					canvas.width = width || window.innerWidth;
+					canvas.height = height || window.innerHeight;
+					document.body.appendChild( canvas );
+
+					canvas.addEventListener( 'mouseenter', setMouseXY );
+					canvas.addEventListener( 'mousemove', setMouseXY );
+					canvas.addEventListener( 'mousedown', setMousePressedTrue );
+					canvas.addEventListener( 'mouseup', setMousePressedFalse );
+
+					return context;
+			}
+
+
+			function clearCanvas () {
+					context.clearRect( 0, 0, context.canvas.width, context.canvas.height );
+			}
+
+
+			//
+			// animation functions
+			//
+			function setup ( cb ) {
+				setupCallback = cb;
+
+				try {
+					setupCallback();
+					isSetUp = true;
+				} catch ( err ) {
+					console.error( 'Failed to setup drawing context' );
+					console.error( err );
+				}
+			}
+
+
+			function drawLoop () {
+				if( running ) {
+					drawCallback();
+					requestAnimationFrame( drawLoop );
+				}
+			}
+
+
+			function go ( setupCB, drawCB ) {
+				setup( setupCB );
+
+				drawCallback = drawCB;
+				running = true;
+
+				requestAnimationFrame( drawLoop );
+			}
+
+
+			function stop () {
+				running = false;
+			}
+
+
+
+
+			//
+			// Public API
+			//
+			return {
+				go: go,
+				stop: stop,
+				setupCanvas: setupCanvas,
+				clearCanvas: clearCanvas,
+				mouse: mouse
+			};
+		})();
+
+		(function( Frames, Random ){
+			var canvasWidth = 640;
+			var canvasHeight = 360;
+			var context = null;
+			var canvas = null;
+			var mousedown = false;
+			var red, green, blue;
+
+			function setup () {
+				context = Frames.setupCanvas( canvasWidth, canvasHeight );
+				canvas = context.canvas;
+
+				canvas.addEventListener( 'mousedown', handleMouseDown );
+			}
+
+			function draw () {
+				var x, y;
+
+				if( !Frames.mouse.pressed ) return;
+
+				x = parseInt( Random.normal( Frames.mouse.x, 12 ), 10 );
+				y = parseInt( Random.normal( Frames.mouse.y, 12 ), 10 );
+
+				context.beginPath();
+				context.arc( x, y, 8, 0, 2 * Math.PI );
+				context.fill();
+			}
+
+			function handleMouseDown () {
+				red = parseInt( Random.normal( 125, 40 ), 10 );
+				green = parseInt( Random.normal( 125, 40 ), 10 );
+				blue = parseInt( Random.normal( 125, 40 ), 10 );
+				context.fillStyle = 'rgba('+ red +','+ green +','+ blue +',0.65 )';
+			}
+
+			Frames.go( setup, draw );
+
+		})( Frames, new Random() );
+		</script>
+</html>
