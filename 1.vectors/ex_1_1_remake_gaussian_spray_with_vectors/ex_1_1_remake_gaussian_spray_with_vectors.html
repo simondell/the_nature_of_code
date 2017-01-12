@@ -27,23 +27,6 @@
 			if( x == undefined || y == undefined ) throw 'Must supply two dimensions when setting vector'
 			this.x = x || 0;
 			this.y = y || 0;
-		},
-		add: function (v2) {
-			this.x += v2.x;
-			this.y += v2.y;
-		},
-		sub: function (v2) {
-			this.x -= v2.x;
-			this.y -= v2.y;
-		},
-		mult: function (scale) {
-			this.x *= scale;
-			this.y *= scale;
-		},
-		div: function (factor) {
-			if( factor === 0 ) throw 'Division by zero causes problems. Don\'t do it.';
-			this.x /= factor;
-			this.y /= factor;
 		}
 	}
 
