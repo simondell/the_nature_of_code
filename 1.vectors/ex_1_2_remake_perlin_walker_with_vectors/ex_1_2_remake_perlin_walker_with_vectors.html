@@ -118,7 +118,8 @@
 	walker = new Walker( context, canvasWidth / 2, canvasHeight / 2 );
 
 	requestAnimationFrame( function draw () {
-		walker.step().display();
+		walker.step()
+		walker.display();
 		requestAnimationFrame( draw );
 	});
 	</script>
