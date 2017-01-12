@@ -30,11 +30,48 @@
 		return ( ( ( num - inputMin ) * outputRange ) / inputRange ) + outputMin ;
 	}
 
+	function Vector2D (x, y) {
+		this.x = x || 0;
+		this.y = y || 0;
+	}
+
+	Vector2D.prototype = {
+		constructor: Vector2D,
+
+		set: function set (arg1, y) {
+			if( arg1 instanceof Vector2D ) {
+				this.x = arg1.x;
+				this.y = arg1.y;
+			} else {
+				if( typeof arg1 !== 'number' || typeof y !== 'number' ) {
+					throw 'Must supply eithr a Vector2D or two numbers';
+				}
+
+				this.x = arg1 || 0;
+				this.y = y || 0;
+			}
+		},
+
+		add: function add (v2) {
+			this.x += v2.x;
+			this.y += v2.y;
+		},
+	}
+
+	Vector2D.sum = function sum (v1, v2) {
+		return new Vector2D(
+			v1.x + v2.x,
+			v1.y + v2.y
+		);
+	}
+
+
+
 	// A Walker "class"
 	function Walker(context, x, y) {
 		this.context = context;
-		this.x = x;
-		this.y = y;
+		this.position = new Vector2D(x, y);
+		this.next_position = new Vector2D();
 		this.tx = Math.random();
 		this.ty = Math.random();
 	}
@@ -43,12 +80,12 @@
 		var t = 0.03
 		var perlin_x = noise.perlin2( this.tx, t );
 		var perlin_y = noise.perlin2( this.ty, t );
+		var step = new Vector2D(
+			mapToRange( perlin_x, -1, 1, -10, 10 ),
+			mapToRange( perlin_y, -1, 1, -10, 10 )
+		);
 
-		var stepX = mapToRange( perlin_x, -1, 1, -10, 10 );
-		var stepY = mapToRange( perlin_y, -1, 1, -10, 10 );
-
-		this.new_x = this.x + stepX;
-		this.new_y = this.y + stepY;
+		this.next_position = Vector2D.sum( this.position, step );
 		this.tx += 0.02;
 		this.ty += 0.02;
 
@@ -58,13 +95,11 @@
 	Walker.prototype.display = function () {
 		this.context.lineWidth = 1;
 		this.context.strokeStyle = 'rgba(0,0,0,0.1)';
-		this.context.moveTo( this.x, this.y );
-		this.context.lineTo( this.new_x, this.new_y );
+		this.context.moveTo( this.position.x, this.position.y );
+		this.context.lineTo( this.next_position.x, this.next_position.y );
 		this.context.stroke();
 
-		this.x = this.new_x;
-		this.y = this.new_y;
-
+		this.position.set( this.next_position );
 		return this;
 	}
 
