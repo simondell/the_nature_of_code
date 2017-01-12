@@ -66,13 +66,15 @@
 	}
 
 	function draw () {
-		var x, y;
+		var splatter = new Vector2D();
 
 		if( mouse.pressed ) {
-			x = parseInt( generate.normal( mouse.position.x, 12 ), 10 );
-			y = parseInt( generate.normal( mouse.position.y, 12 ), 10 );
+			splatter.set(
+				parseInt( generate.normal( mouse.position.x, 12 ), 10 ),
+				parseInt( generate.normal( mouse.position.y, 12 ), 10 )
+			)
 			context.beginPath();
-			context.arc( x, y, 8, 0, 2 * Math.PI );
+			context.arc( splatter.x, splatter.y, 8, 0, 2 * Math.PI );
 			context.fill();
 		}
 
