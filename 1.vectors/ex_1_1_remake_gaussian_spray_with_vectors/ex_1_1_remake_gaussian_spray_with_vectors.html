@@ -1,168 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-		<meta charset="UTF-8">
-		<title>Gausian distribution</title>
+	<meta charset="UTF-8">
+	<title>Gausian distribution</title>
 
-		<style>
-		canvas {
-			background-color: rgb(210,210,210);
-		}
-		</style>
+	<style>
+	canvas {
+		background-color: rgb(210,210,210);
+	}
+	</style>
 </head>
 <body>
 </body>
 
-		<script src="random-0.26.js"></script>
+	<script src="random-0.26.js"></script>
 
-		<script>
-		var Frames = ( function () {
-			var context = null;
+	<script>
+	function Vector2D (x, y) {
+		this.x = x || 0;
+		this.y = y || 0;
+	}
 
-			var running = false;
-			var setupCallback = null;
-			var drawCallback = null;
+	Vector2D.prototype = {
+		constructor: Vector2D,
+		set: function (x, y) {
+			if( x == undefined || y == undefined ) throw 'Must supply two dimensions when setting vector'
+			this.x = x || 0;
+			this.y = y || 0;
+		},
+		add: function (v2) {
+			this.x += v2.x;
+			this.y += v2.y;
+		},
+		sub: function (v2) {
+			this.x -= v2.x;
+			this.y -= v2.y;
+		},
+		mult: function (scale) {
+			this.x *= scale;
+			this.y *= scale;
+		},
+		div: function (factor) {
+			if( factor === 0 ) throw 'Division by zero causes problems. Don\'t do it.';
+			this.x /= factor;
+			this.y /= factor;
+		}
+	}
 
-			var mouse = {
-				x: null,
-				y: null,
-				pressed: false
-			}
+ 	</script>
 
+	<script>
+	var canvas = document.createElement( 'canvas' );
+	var context = canvas.getContext( '2d' );
+	var red, green, blue;
+	var generate = new Random();
 
-			//
-			// event handlers
-			//
-			function setMouseXY ( event ) {
-				mouse.x = event.pageX;
-				mouse.y = event.pageY;
-			}
+	var mouse = {
+		position: new Vector2D(),
+		pressed: false
+	};
 
-			function setMousePressedTrue ( event ) {
-				mouse.pressed = true;
-			}
+	//
+	// event handlers
+	//
+	function setMouseXY ( event ) {
+		mouse.position.set( event.pageX, event.pageY );
+	}
 
-			function setMousePressedFalse ( event ) {
-				mouse.pressed = false;
-			}
+	function setMousePressedTrue ( event ) {
+		mouse.pressed = true;
+	}
 
+	function setMousePressedFalse ( event ) {
+		mouse.pressed = false;
+	}
 
-			//
-			// canvas functions
-			//
-			function setupCanvas(width, height) {
-					var canvas = document.createElement( 'canvas' );
+	function handleMouseDown () {
+		red = parseInt( generate.normal( 125, 40 ), 10 );
+		green = parseInt( generate.normal( 125, 40 ), 10 );
+		blue = parseInt( generate.normal( 125, 40 ), 10 );
+		context.fillStyle = 'rgba('+ red +','+ green +','+ blue +',0.65 )';
+	}
 
-					context = canvas.getContext( '2d' );
+	function draw () {
+		var x, y;
 
-					canvas.width = width || window.innerWidth;
-					canvas.height = height || window.innerHeight;
-					document.body.appendChild( canvas );
+		if( mouse.pressed ) {
+			x = parseInt( generate.normal( mouse.position.x, 12 ), 10 );
+			y = parseInt( generate.normal( mouse.position.y, 12 ), 10 );
+			context.beginPath();
+			context.arc( x, y, 8, 0, 2 * Math.PI );
+			context.fill();
+		}
 
-					canvas.addEventListener( 'mouseenter', setMouseXY );
-					canvas.addEventListener( 'mousemove', setMouseXY );
-					canvas.addEventListener( 'mousedown', setMousePressedTrue );
-					canvas.addEventListener( 'mouseup', setMousePressedFalse );
+		requestAnimationFrame( draw );
+	}
 
-					return context;
-			}
+	canvas.width = window.innerWidth / 2;
+	canvas.height = window.innerHeight / 2;
+	document.body.appendChild( canvas );
 
+	canvas.addEventListener( 'mouseenter', setMouseXY );
+	canvas.addEventListener( 'mousemove', setMouseXY );
+	canvas.addEventListener( 'mousedown', setMousePressedTrue );
+	canvas.addEventListener( 'mouseup', setMousePressedFalse );
+	canvas.addEventListener( 'mousedown', handleMouseDown );
 
-			function clearCanvas () {
-					context.clearRect( 0, 0, context.canvas.width, context.canvas.height );
-			}
-
-
-			//
-			// animation functions
-			//
-			function setup ( cb ) {
-				setupCallback = cb;
-
-				try {
-					setupCallback();
-					isSetUp = true;
-				} catch ( err ) {
-					console.error( 'Failed to setup drawing context' );
-					console.error( err );
-				}
-			}
-
-
-			function drawLoop () {
-				if( running ) {
-					drawCallback();
-					requestAnimationFrame( drawLoop );
-				}
-			}
-
-
-			function go ( setupCB, drawCB ) {
-				setup( setupCB );
-
-				drawCallback = drawCB;
-				running = true;
-
-				requestAnimationFrame( drawLoop );
-			}
-
-
-			function stop () {
-				running = false;
-			}
-
-
-
-
-			//
-			// Public API
-			//
-			return {
-				go: go,
-				stop: stop,
-				setupCanvas: setupCanvas,
-				clearCanvas: clearCanvas,
-				mouse: mouse
-			};
-		})();
-
-		(function( Frames, Random ){
-			var canvasWidth = 640;
-			var canvasHeight = 360;
-			var context = null;
-			var canvas = null;
-			var mousedown = false;
-			var red, green, blue;
-
-			function setup () {
-				context = Frames.setupCanvas( canvasWidth, canvasHeight );
-				canvas = context.canvas;
-
-				canvas.addEventListener( 'mousedown', handleMouseDown );
-			}
-
-			function draw () {
-				var x, y;
-
-				if( !Frames.mouse.pressed ) return;
-
-				x = parseInt( Random.normal( Frames.mouse.x, 12 ), 10 );
-				y = parseInt( Random.normal( Frames.mouse.y, 12 ), 10 );
-
-				context.beginPath();
-				context.arc( x, y, 8, 0, 2 * Math.PI );
-				context.fill();
-			}
-
-			function handleMouseDown () {
-				red = parseInt( Random.normal( 125, 40 ), 10 );
-				green = parseInt( Random.normal( 125, 40 ), 10 );
-				blue = parseInt( Random.normal( 125, 40 ), 10 );
-				context.fillStyle = 'rgba('+ red +','+ green +','+ blue +',0.65 )';
-			}
-
-			Frames.go( setup, draw );
-
-		})( Frames, new Random() );
-		</script>
+	draw();
+	</script>
 </html>
