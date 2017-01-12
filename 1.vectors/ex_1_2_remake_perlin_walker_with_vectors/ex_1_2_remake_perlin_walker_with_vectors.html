@@ -15,104 +15,78 @@
 
 	<script src="https://rawgit.com/josephg/noisejs/master/perlin.js"></script>
 	<script>
-		function mapToRange ( num, inputMin, inputMax, outputMin, outputMax ) {
-			// thanks SO: http://stackoverflow.com/questions/929103/convert-a-number-range-to-another-range-maintaining-ratio
-			var inputRange = inputMax - inputMin;
-			var outputRange = outputMax - outputMin;
+	var canvas;
+	var canvasWidth = 640;
+	var canvasHeight = 360;
+	var context = null;
 
-			if( inputRange === 0 ) throw 'Input range = 0';
-			if( outputRange === 0 ) throw 'Ouput range = 0';
-			if( num < inputMin || num > inputMax ) throw new RangeError( 'Num is outside of input range.' );
+	function mapToRange ( num, inputMin, inputMax, outputMin, outputMax ) {
+		// thanks SO: http://stackoverflow.com/questions/929103/convert-a-number-range-to-another-range-maintaining-ratio
+		var inputRange = inputMax - inputMin;
+		var outputRange = outputMax - outputMin;
 
-			return ( ( ( num - inputMin ) * outputRange ) / inputRange ) + outputMin ;
-		}
+		if( inputRange === 0 ) throw 'Input range = 0';
+		if( outputRange === 0 ) throw 'Ouput range = 0';
+		if( num < inputMin || num > inputMax ) throw new RangeError( 'Num is outside of input range.' );
 
-		(function( noise ){
-			var canvas;
-			var canvasWidth = 640;
-			var canvasHeight = 360;
-			var context = null;
-
-			// A Walker "class"
-			function Walker(context, x, y) {
-				this.context = context;
-				this.x = x;
-				this.y = y;
-				this.tx = Math.random();
-				this.ty = Math.random();
-			}
-
-			Walker.prototype.step = function () {
-				var t = 0.03
-				var perlin_x = noise.perlin2( this.tx, t );
-				var perlin_y = noise.perlin2( this.ty, t );
-
-				var stepX = mapToRange( perlin_x, -1, 1, -10, 10 );
-				var stepY = mapToRange( perlin_y, -1, 1, -10, 10 );
-
-				this.new_x = this.x + stepX;
-				this.new_y = this.y + stepY;
-				this.tx += 0.02;
-				this.ty += 0.02;
-
-				return this;
-			}
-
-			Walker.prototype.display = function () {
-				this.context.lineWidth = 1;
-				this.context.strokeStyle = 'rgba(0,0,0,0.1)';
-				this.context.moveTo( this.x, this.y );
-				this.context.lineTo( this.new_x, this.new_y );
-				this.context.stroke();
-
-				this.x = this.new_x;
-				this.y = this.new_y;
-
-				return this;
-			}
-
-
-			//
-			// get it walking
-			//
-			canvas = document.createElement( 'canvas' );
-			canvas.width = canvasWidth;
-			canvas.height = canvasHeight;
-			document.body.appendChild( canvas );
-
-			noise.seed(Math.random());
-
-			context = canvas.getContext( '2d' );
-			walker = new Walker( context, canvasWidth / 2, canvasHeight / 2 );
-
-			requestAnimationFrame( function draw () {
-				walker.step().display();
-				requestAnimationFrame( draw );
-			});
-/*
-requestAnimationFrame( function () {
-	var size = 10;  // pick a scaling value
-	var z = 1.6;
-
-	var step_x, step_y, x, y, n, colour;
-
-	for( step_y = 0; step_y < canvas.height; step_y++ ){
-	  for( step_x = 0; step_x < canvas.width; step_x++ ){
-	    x = step_x / canvas.width;
-	    y = step_y / canvas.height;
-	    n = PerlinNoise.noise( size*x, size*y, z );
-	    colour = Math.round( 360 * n );
-	    context.fillStyle = 'hsl(' + colour + ',' + '40%,' + '50%)';
-	    context.fillRect( step_x, step_y, 1, 1 );
-	  }
+		return ( ( ( num - inputMin ) * outputRange ) / inputRange ) + outputMin ;
 	}
-	console.log('finished loop');
-});
-*/
+
+	// A Walker "class"
+	function Walker(context, x, y) {
+		this.context = context;
+		this.x = x;
+		this.y = y;
+		this.tx = Math.random();
+		this.ty = Math.random();
+	}
+
+	Walker.prototype.step = function () {
+		var t = 0.03
+		var perlin_x = noise.perlin2( this.tx, t );
+		var perlin_y = noise.perlin2( this.ty, t );
+
+		var stepX = mapToRange( perlin_x, -1, 1, -10, 10 );
+		var stepY = mapToRange( perlin_y, -1, 1, -10, 10 );
+
+		this.new_x = this.x + stepX;
+		this.new_y = this.y + stepY;
+		this.tx += 0.02;
+		this.ty += 0.02;
+
+		return this;
+	}
+
+	Walker.prototype.display = function () {
+		this.context.lineWidth = 1;
+		this.context.strokeStyle = 'rgba(0,0,0,0.1)';
+		this.context.moveTo( this.x, this.y );
+		this.context.lineTo( this.new_x, this.new_y );
+		this.context.stroke();
+
+		this.x = this.new_x;
+		this.y = this.new_y;
+
+		return this;
+	}
 
 
+	//
+	// get it walking
+	//
+	canvas = document.createElement( 'canvas' );
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
+	document.body.appendChild( canvas );
 
+	noise.seed(Math.random());
 
-		})( noise );
+	context = canvas.getContext( '2d' );
+	walker = new Walker( context, canvasWidth / 2, canvasHeight / 2 );
+
+	requestAnimationFrame( function draw () {
+		walker.step().display();
+		requestAnimationFrame( draw );
+	});
 	</script>
 </html>
