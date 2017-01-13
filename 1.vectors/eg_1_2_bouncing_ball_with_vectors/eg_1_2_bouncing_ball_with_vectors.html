@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>A random walker and walker class</title>
+
+	<style>
+	canvas {
+		border: 1px solid grey;
+	}
+	</style>
+</head>
+<body>
+	<script>
+	var canvas;
+	var canvasWidth = 640;
+	var canvasHeight = 360;
+	var context = null;
+
+	// map to range
+	//
+	function mapToRange ( num, inputMin, inputMax, outputMin, outputMax ) {
+		// thanks SO: http://stackoverflow.com/questions/929103/convert-a-number-range-to-another-range-maintaining-ratio
+		var inputRange = inputMax - inputMin;
+		var outputRange = outputMax - outputMin;
+
+		if( inputRange === 0 ) throw 'Input range = 0';
+		if( outputRange === 0 ) throw 'Ouput range = 0';
+		if( num < inputMin || num > inputMax ) throw new RangeError( 'Num is outside of input range.' );
+
+		return ( ( ( num - inputMin ) * outputRange ) / inputRange ) + outputMin ;
+	}
+
+	// a 2d vector
+	//
+	function Vector2D (x, y) {
+		this.x = x || 0;
+		this.y = y || 0;
+	}
+
+	Vector2D.prototype = {
+		constructor: Vector2D,
+
+		set: function set (arg1, y) {
+			if( arg1 instanceof Vector2D ) {
+				this.x = arg1.x;
+				this.y = arg1.y;
+			} else {
+				if( typeof arg1 !== 'number' || typeof y !== 'number' ) {
+					throw 'Must supply eithr a Vector2D or two numbers';
+				}
+
+				this.x = arg1 || 0;
+				this.y = y || 0;
+			}
+		},
+
+		add: function add (v2) {
+			this.x += v2.x;
+			this.y += v2.y;
+		},
+	}
+
+	Vector2D.sum = function sum (v1, v2) {
+		return new Vector2D(
+			v1.x + v2.x,
+			v1.y + v2.y
+		);
+	}
+
+	// a ball
+	//
+	function Bouncer ( context ) {
+		this.position = new Vector2D(
+			canvasWidth / 2,
+			canvasHeight / 2
+		);
+		this.radius = 20;
+		this.velocity = new Vector2D( 4, -3 );
+
+		this.context = context;
+	}
+
+	Bouncer.prototype = {
+		constructor: Bouncer,
+		step: function step () {
+			// make it bounce
+			if( this.position.x + this.velocity.x < this.radius
+			|| this.position.x + this.velocity.x > (canvasWidth - this.radius)  ) {
+				this.velocity.x *= -1;
+			}
+
+			if( this.position.y + this.velocity.y < this.radius
+			|| this.position.y + this.velocity.y > (canvasHeight - this.radius) ) {
+				this.velocity.y *= -1;
+			}
+
+			this.position.add( this.velocity );
+		},
+		draw: function draw () {
+			this.context.moveTo(this.position.x, this.position.y);
+			this.context.beginPath();
+			this.context.arc(
+				this.position.x,
+				this.position.y,
+				this.radius,
+				0,
+				2 * Math.PI
+			);
+			this.context.fill();
+		}
+	}
+
+
+	canvas = document.createElement( 'canvas' );
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
+	context = canvas.getContext( '2d' );
+	document.body.appendChild( canvas );
+
+	var bouncer = new Bouncer( context );
+
+	context.strokeColor = 'rgba(255,0,0,0.5)';
+	(function draw () {
+		context.clearRect( 0, 0, canvasWidth, canvasHeight );
+		bouncer.step();
+		bouncer.draw();
+		requestAnimationFrame( draw );
+	})();
+	</script>
+</body>
+</html>
