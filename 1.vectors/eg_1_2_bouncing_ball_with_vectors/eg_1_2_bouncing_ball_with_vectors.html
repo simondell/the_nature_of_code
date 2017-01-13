@@ -78,12 +78,10 @@
 	//
 	function Bouncer ( context ) {
 		this.position = new Vector3D(
-			0,
-			canvasHeight / 2,
-			fov
+			0,0,0
 		);
 		this.radius = 20;
-		this.velocity = new Vector3D( 20, 4, -20);
+		this.velocity = new Vector3D( 10, 10, 10);
 
 		this.context = context;
 	}
@@ -92,20 +90,18 @@
 		constructor: Bouncer,
 		step: function step () {
 			// make it bounce
-console.log(this.position);
-console.log(this.velocity);
-			if( this.position.x + this.velocity.x < this.radius
-			|| this.position.x + this.velocity.x > (canvasWidth - this.radius) ) {
+			if( this.position.x + this.velocity.x < canvasWidth / -2
+			|| this.position.x + this.velocity.x > (canvasWidth / 2) ) {
 				this.velocity.x *= -1;
 			}
 
-			if( this.position.y + this.velocity.y < this.radius
-			|| this.position.y + this.velocity.y > (canvasHeight - this.radius) ) {
+			if( this.position.y + this.velocity.y < canvasHeight / -2
+			|| this.position.y + this.velocity.y > (canvasHeight / 2 ) ) {
 				this.velocity.y *= -1;
 			}
 
-			if( this.position.z + this.velocity.z < this.radius
-			|| this.position.z + this.velocity.z > (fov - this.radius) ) {
+			if( this.position.z + this.velocity.z < fov / -2
+			|| this.position.z + this.velocity.z > fov / 2 ) {
 				this.velocity.z *= -1;
 			}
 
@@ -114,10 +110,10 @@ console.log(this.velocity);
 
 		draw: function draw () {
 			var scale = fov / ( fov + this.position.z );
-			var x2d = (this.position.x * scale) ;
-			var y2d = (this.position.y * scale) ;
-			// var x2d = (this.position.x * scale) + (canvasWidth / 2);
-			// var y2d = (this.position.y * scale) + (canvasHeight / 2);
+			// var x2d = (this.position.x * scale);
+			// var y2d = (this.position.y * scale);
+			var x2d = (this.position.x * scale) + (canvasWidth / 2);
+			var y2d = (this.position.y * scale) + (canvasHeight / 2);
 
 			// this.context.moveTo(x2d, y2d);
 			this.context.beginPath();
@@ -128,6 +124,7 @@ console.log(this.velocity);
 				0,
 				2 * Math.PI
 			);
+			context.fillStyle = 'black';
 			this.context.fill();
 		}
 	}
@@ -141,13 +138,13 @@ console.log(this.velocity);
 
 	var bouncer = new Bouncer( context );
 
-	context.strokeColor = 'rgba(255,0,0,0.5)';
 	(function draw () {
-		context.clearRect( 0, 0, canvasWidth, canvasHeight );
+		context.fillStyle = 'rgba(255,255,255,0.5)';
+		context.fillRect( 0, 0, canvasWidth, canvasHeight );
 		bouncer.step();
 		bouncer.draw();
-		// requestAnimationFrame( draw );
-		setTimeout( draw, 60 );
+		requestAnimationFrame( draw );
+		// setTimeout( draw, 12 );
 	})();
 	</script>
 </body>
