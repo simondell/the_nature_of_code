@@ -31,52 +31,57 @@
 		return ( ( ( num - inputMin ) * outputRange ) / inputRange ) + outputMin ;
 	}
 
-	// a 2d vector
+	// a 3d vector
 	//
-	function Vector2D (x, y) {
+	function Vector3D (x, y, z) {
 		this.x = x || 0;
 		this.y = y || 0;
+		this.z = z || 0;
 	}
 
-	Vector2D.prototype = {
-		constructor: Vector2D,
+	Vector3D.prototype = {
+		constructor: Vector3D,
 
-		set: function set (arg1, y) {
-			if( arg1 instanceof Vector2D ) {
+		set: function set (arg1, y, z) {
+			if( arg1 instanceof Vector3D ) {
 				this.x = arg1.x;
 				this.y = arg1.y;
+				this.z = arg1.z;
 			} else {
-				if( typeof arg1 !== 'number' || typeof y !== 'number' ) {
-					throw 'Must supply eithr a Vector2D or two numbers';
+				if( typeof arg1 !== 'number' || typeof y !== 'number' || typeof z !== 'number' ) {
+					throw 'Must supply eithr a Vector3D or three numbers';
 				}
 
-				this.x = arg1 || 0;
-				this.y = y || 0;
+				this.x = arg1;
+				this.y = y;
+				this.z = z;
 			}
 		},
 
 		add: function add (v2) {
 			this.x += v2.x;
 			this.y += v2.y;
+			this.z += v2.z;
 		},
 	}
 
-	Vector2D.sum = function sum (v1, v2) {
-		return new Vector2D(
+	Vector3D.sum = function sum (v1, v2) {
+		return new Vector3D(
 			v1.x + v2.x,
-			v1.y + v2.y
+			v1.y + v2.y,
+			v1.z + v2.z
 		);
 	}
 
 	// a ball
 	//
 	function Bouncer ( context ) {
-		this.position = new Vector2D(
+		this.position = new Vector3D(
 			canvasWidth / 2,
 			canvasHeight / 2
 		);
 		this.radius = 20;
-		this.velocity = new Vector2D( 4, -3 );
+		this.velocity = new Vector3D( 2, 4, 5 );
 
 		this.context = context;
 	}
@@ -86,13 +91,18 @@
 		step: function step () {
 			// make it bounce
 			if( this.position.x + this.velocity.x < this.radius
-			|| this.position.x + this.velocity.x > (canvasWidth - this.radius)  ) {
+			|| this.position.x + this.velocity.x > (canvasWidth - this.radius) ) {
 				this.velocity.x *= -1;
 			}
 
 			if( this.position.y + this.velocity.y < this.radius
 			|| this.position.y + this.velocity.y > (canvasHeight - this.radius) ) {
 				this.velocity.y *= -1;
+			}
+
+			if( this.position.z + this.velocity.z < this.radius
+			|| this.position.z + this.velocity.z > (fov - this.radius) ) {
+				this.velocity.z *= -1;
 			}
 
 			this.position.add( this.velocity );
