@@ -12,10 +12,11 @@
 </head>
 <body>
 	<script>
-	var canvas;
+	var canvas = null;
+	var context = null;
 	var canvasWidth = 640;
 	var canvasHeight = 360;
-	var context = null;
+	var fov = 400;
 
 	// map to range
 	//
@@ -77,11 +78,12 @@
 	//
 	function Bouncer ( context ) {
 		this.position = new Vector3D(
-			canvasWidth / 2,
-			canvasHeight / 2
+			0,
+			canvasHeight / 2,
+			fov
 		);
 		this.radius = 20;
-		this.velocity = new Vector3D( 2, 4, 5 );
+		this.velocity = new Vector3D( 20, 4, -20);
 
 		this.context = context;
 	}
@@ -90,6 +92,8 @@
 		constructor: Bouncer,
 		step: function step () {
 			// make it bounce
+console.log(this.position);
+console.log(this.velocity);
 			if( this.position.x + this.velocity.x < this.radius
 			|| this.position.x + this.velocity.x > (canvasWidth - this.radius) ) {
 				this.velocity.x *= -1;
@@ -107,13 +111,20 @@
 
 			this.position.add( this.velocity );
 		},
+
 		draw: function draw () {
-			this.context.moveTo(this.position.x, this.position.y);
+			var scale = fov / ( fov + this.position.z );
+			var x2d = (this.position.x * scale) ;
+			var y2d = (this.position.y * scale) ;
+			// var x2d = (this.position.x * scale) + (canvasWidth / 2);
+			// var y2d = (this.position.y * scale) + (canvasHeight / 2);
+
+			// this.context.moveTo(x2d, y2d);
 			this.context.beginPath();
 			this.context.arc(
-				this.position.x,
-				this.position.y,
-				this.radius,
+				x2d,
+				y2d,
+				this.radius * scale,
 				0,
 				2 * Math.PI
 			);
@@ -135,7 +146,8 @@
 		context.clearRect( 0, 0, canvasWidth, canvasHeight );
 		bouncer.step();
 		bouncer.draw();
-		requestAnimationFrame( draw );
+		// requestAnimationFrame( draw );
+		setTimeout( draw, 60 );
 	})();
 	</script>
 </body>
