@@ -35,6 +35,11 @@
 			return this;
 		},
 
+		limit: function limit ( max ) {
+			if( this.mag() > max ) this.normalise().mult( max );
+			return this;
+		},
+
 		mag: function mag () {
 			var x_squared = Math.pow( this.x, 2 );
 			var y_squared = Math.pow( this.y, 2 );
@@ -91,11 +96,30 @@
 		console.log( `after  normalising: mag = ${sut.mag()}` );
 	}
 
+	function test_limit ( sut, max ) {
+		console.log( `Testing limit( ${max} ) on (${sut.x},${sut.y})...` );
+		console.log( `Before limit, mag = ${sut.mag()}` );
+		sut.limit( max );
+		console.log( `after  limit: mag = ${sut.mag()}` );
+	}
+
 	test_normalise( new Vector2D( 3, -17 ) );
 	test_normalise( new Vector2D( -3, 17 ) );
 	test_normalise( new Vector2D( 444.34317, 21.9 ) );
 	test_normalise( new Vector2D( -19387, -4264 ) );
 	test_normalise( new Vector2D( 1, 1 ) );
+	// test_normalise( new Vector2D( 0, 0 ) );
+
+	console.log('-----------------');
+
+	test_limit( new Vector2D( 3, -17 ), 4 );
+	test_limit( new Vector2D( -3, 17 ), 5 );
+	test_limit( new Vector2D( 444.34317, 21.9 ), 3 );
+	test_limit( new Vector2D( -19387, -4264 ), 6 );
+	test_limit( new Vector2D( 1, 1 ), 99 );
+	test_limit( new Vector2D( 0, 0 ), 300 );
+
+
 	</script>
 }
 </body>
