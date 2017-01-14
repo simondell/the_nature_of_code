@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>A random walker and walker class</title>
+
+	<style>
+	canvas {
+		border: 1px solid grey;
+	}
+	</style>
+</head>
+<body>
+	<script>
+	function Vector2D (x, y) {
+		this.x = x || 0;
+		this.y = y || 0;
+	}
+
+	Vector2D.prototype = {
+		constructor: Vector2D,
+
+		set: function set (arg1, y) {
+			if( arg1 instanceof Vector2D ) {
+				this.x = arg1.x;
+				this.y = arg1.y;
+			} else {
+				if( typeof arg1 !== 'number' || typeof y !== 'number' ) {
+					throw 'Must supply eithr a Vector2D or two numbers';
+				}
+
+				this.x = arg1 || 0;
+				this.y = y || 0;
+			}
+
+			return this;
+		},
+
+		add: function add (v2) {
+			this.x += v2.x;
+			this.y += v2.y;
+
+			return this;
+		},
+
+		sub: function sub (v2) {
+			this.x -= v2.x;
+			this.y -= v2.y;
+
+			return this;
+		},
+
+		mult: function mult (scale) {
+			this.x *= scale;
+			this.y *= scale;
+
+			return this;
+		},
+
+		div: function div (divisor) {
+			if( divisor === 0 ) throw 'Division by zero causes problems. Don\'t do it.';
+			this.x /= divisor;
+			this.y /= divisor;
+
+			return this;
+		},
+
+		normalise: function normalise () {
+			return this.div( this.mag() );
+		},
+
+		mag: function mag () {
+			var x_squared = Math.pow( this.x, 2 );
+			var y_squared = Math.pow( this.y, 2 );
+
+			return Math.sqrt( x_squared + y_squared );
+		}
+	}
+
+	Vector2D.sum = function sum (v1, v2) {
+		return new Vector2D(
+			v1.x + v2.x,
+			v1.y + v2.y
+		);
+	}
+
+	function test ( sut ) {
+		console.log( `Testing (${sut.x},${sut.y})...` );
+		console.log( `before normalising: mag = ${sut.mag()}` );
+		sut.normalise();
+		console.log( `after  normalising: mag = ${sut.mag()}` );
+	}
+
+	test( new Vector2D( 3, -17 ) );
+	test( new Vector2D( -3, 17 ) );
+	test( new Vector2D( 444.34317, 21.9 ) );
+	test( new Vector2D( -19387, -4264 ) );
+	test( new Vector2D( 1, 1 ) );
+	test( new Vector2D( 0, 0 ) );
+	</script>
+}
+</body>
+</html>
