@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Accelerating with Perlin noise as force</title>
+
+	<style>
+	canvas {
+		border: 1px solid grey;
+	}
+	</style>
+</head>
+<body>
+	<script src="https://rawgit.com/josephg/noisejs/master/perlin.js"></script>
+	<script>
+	function Vector2D (x, y) {
+		this.x = x || 0;
+		this.y = y || 0;
+	}
+
+	Vector2D.prototype = {
+		constructor: Vector2D,
+
+		add: function add (v2) {
+			this.x += v2.x;
+			this.y += v2.y;
+
+			return this;
+		},
+
+		div: function div (divisor) {
+			if( divisor === 0 ) throw 'Division by zero causes problems. Don\'t do it.';
+			this.x /= divisor;
+			this.y /= divisor;
+
+			return this;
+		},
+
+		limit: function limit ( max ) {
+			if( this.mag() > max ) this.normalise().mult( max );
+			return this;
+		},
+
+		mag: function mag () {
+			var x_squared = Math.pow( this.x, 2 );
+			var y_squared = Math.pow( this.y, 2 );
+
+			return Math.sqrt( x_squared + y_squared );
+		},
+
+		mult: function mult (scale) {
+			this.x *= scale;
+			this.y *= scale;
+
+			return this;
+		},
+
+		normalise: function normalise () {
+			return this.div( this.mag() );
+		},
+
+		set: function set (arg1, y) {
+			if( arg1 instanceof Vector2D ) {
+				this.x = arg1.x;
+				this.y = arg1.y;
+			} else {
+				if( typeof arg1 !== 'number' || typeof y !== 'number' ) {
+					throw 'Must supply eithr a Vector2D or two numbers';
+				}
+
+				this.x = arg1 || 0;
+				this.y = y || 0;
+			}
+
+			return this;
+		},
+
+		sub: function sub (v2) {
+			this.x -= v2.x;
+			this.y -= v2.y;
+
+			return this;
+		}
+	}
+
+	Vector2D.sum = function sum (v1, v2) {
+		return new Vector2D(
+			v1.x + v2.x,
+			v1.y + v2.y
+		);
+	}
+	</script>
+
+	<script>
+	function mapToRange ( num, inputMin, inputMax, outputMin, outputMax ) {
+		// thanks SO: http://stackoverflow.com/questions/929103/convert-a-number-range-to-another-range-maintaining-ratio
+		var inputRange = inputMax - inputMin;
+		var outputRange = outputMax - outputMin;
+
+		if( inputRange === 0 ) throw 'Input range = 0';
+		if( outputRange === 0 ) throw 'Ouput range = 0';
+		if( num < inputMin || num > inputMax ) throw new RangeError( 'Num is outside of input range.' );
+
+		return ( ( ( num - inputMin ) * outputRange ) / inputRange ) + outputMin ;
+	}
+	</script>
+
+	<script>
+	var canvas;
+	var canvasWidth = 640;
+	var canvasHeight = 360;
+	var context = null;
+
+
+	// A Walker "class"
+	function Walker(context, x, y) {
+		this.context = context;
+		this.position = new Vector2D(x, y);
+		this.next_position = new Vector2D(x, y);
+		this.velocity = new Vector2D(0, 0);
+		this.acceleration = new Vector2D();
+		this.tx = Math.random();
+		this.ty = Math.random()* 10000;
+	}
+
+	Walker.prototype.step = function () {
+		var t = 0.03
+		var perlin_x = noise.perlin2( this.tx, t );
+		var perlin_y = noise.perlin2( t, this.ty );
+		this.acceleration.set(
+			mapToRange( perlin_x, -1, 1, -0.1, 0.1 ),
+			mapToRange( perlin_y, -1, 1,  -0.1, 0.1 )
+		);
+
+		this.velocity.add( this.acceleration );
+		this.velocity.limit( 50 );
+		this.next_position.add( this.velocity );
+
+		this.tx += 0.01;
+		this.ty += 0.01;
+
+		return this;
+	}
+
+	Walker.prototype.display = function () {
+		this.context.lineWidth = 5;
+		this.context.strokeStyle = 'rgba(0,0,0,0.1)';
+		this.context.moveTo( this.position.x, this.position.y );
+		this.context.lineTo( this.next_position.x, this.next_position.y );
+		this.context.stroke();
+
+		this.position.set( this.next_position );
+		if( this.position.x < 0 ) {
+			this.position.x = canvasWidth;
+			this.next_position.x = canvasWidth;
+		}
+
+		if( this.position.x > canvasWidth ) {
+			this.position.x = 0;
+			this.next_position.x = 0;
+		}
+
+		if( this.position.y < 0 ) {
+			this.position.y = canvasHeight;
+			this.next_position.y = canvasHeight;
+		}
+
+		if( this.position.y > canvasHeight ) {
+			this.position.y = 0;
+			this.next_position.y = 0;
+		}
+
+
+		return this;
+	}
+
+
+	//
+	// get it walking
+	//
+	canvas = document.createElement( 'canvas' );
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
+	document.body.appendChild( canvas );
+
+	noise.seed(Math.random());
+
+	context = canvas.getContext( '2d' );
+	walker = new Walker( context, canvasWidth / 2, canvasHeight / 2 );
+
+	setTimeout( function draw () {
+		walker.step()
+		walker.display();
+		setTimeout( draw, 20 );
+	});
+	</script>
+</body>
+</html>
