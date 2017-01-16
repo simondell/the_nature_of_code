@@ -48,9 +48,9 @@
 			return Math.sqrt( x_squared + y_squared );
 		},
 
-		mult: function mult (scale) {
-			this.x *= scale;
-			this.y *= scale;
+		mult: function mult (multiplier) {
+			this.x *= multiplier;
+			this.y *= multiplier;
 
 			return this;
 		},
@@ -89,6 +89,27 @@
 			v1.y + v2.y
 		);
 	}
+
+	Vector2D.diff = function diff (v1, v2) {
+		return new Vector2D(
+			v1.x - v2.x,
+			v1.y - v2.y
+		);
+	}
+
+	Vector2D.scale = function scale (factor, multiplier) {
+		return new Vector2D(
+			factor.x * multiplier,
+			factor.y * multiplier
+		);
+	}
+
+	Vector2D.quotient = function quotient (dividend, divisor) {
+		return new Vector2D(
+			dividend.x / divisor,
+			dividend.y / divisor
+		);
+	}
 	</script>
 
 	<script>
@@ -106,14 +127,8 @@
 	</script>
 
 	<script>
-	var canvas;
-	var canvasWidth = 640;
-	var canvasHeight = 360;
-	var context = null;
-
-
-	// A Walker "class"
-	function Walker(context, x, y) {
+	// A Mover "class"
+	function Mover(context, x, y) {
 		this.context = context;
 		this.position = new Vector2D(x, y);
 		this.next_position = new Vector2D(x, y);
@@ -123,7 +138,7 @@
 		this.ty = Math.random()* 10000;
 	}
 
-	Walker.prototype.step = function () {
+	Mover.prototype.step = function () {
 		var t = 0.03
 		var perlin_x = noise.perlin2( this.tx, t );
 		var perlin_y = noise.perlin2( t, this.ty );
@@ -142,7 +157,7 @@
 		return this;
 	}
 
-	Walker.prototype.display = function () {
+	Mover.prototype.display = function () {
 		this.context.lineWidth = 5;
 		this.context.strokeStyle = 'rgba(0,0,0,0.1)';
 		this.context.moveTo( this.position.x, this.position.y );
@@ -170,27 +185,52 @@
 			this.next_position.y = 0;
 		}
 
-
 		return this;
 	}
 
 
+
 	//
-	// get it walking
+	// event handlers
 	//
+	function setMouseXY ( event ) {
+		mouse.set( event.pageX, event.pageY );
+	}
+
+	function setMouseOver () {
+		mouse.over = true;
+	}
+
+	function setMouseOut () {
+		mouse.over = false;
+	}
+
+
+
+	//
+	// draw it all
+	//
+	var mouse = new Vector2D();
+	var canvas;
+	var canvasWidth = 640;
+	var canvasHeight = 360;
+
+	mouse.over = false;
+
 	canvas = document.createElement( 'canvas' );
 	canvas.width = canvasWidth;
 	canvas.height = canvasHeight;
+	canvas.addEventListener( 'mouseenter', setMouseOver );
+	canvas.addEventListener( 'mouseenter', setMouseOut );
+	canvas.addEventListener( 'mouseenter', setMouseXY );
+	canvas.addEventListener( 'mousemove', setMouseXY );
 	document.body.appendChild( canvas );
 
-	noise.seed(Math.random());
-
-	context = canvas.getContext( '2d' );
-	walker = new Walker( context, canvasWidth / 2, canvasHeight / 2 );
+	mover = new Mover( canvas.getContext( '2d' ), canvasWidth / 2, canvasHeight / 2 );
 
 	setTimeout( function draw () {
-		walker.step()
-		walker.display();
+		mover.step()
+		mover.display();
 		setTimeout( draw, 20 );
 	});
 	</script>
