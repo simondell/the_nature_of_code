@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>A random walker and walker class</title>
+
+	<style>
+	canvas {
+		border: 1px solid grey;
+	}
+	</style>
+</head>
+<body>
+	<script>
+	function Vector2D (x, y) {
+		this.x = x || 0;
+		this.y = y || 0;
+	}
+
+	Vector2D.prototype = {
+		constructor: Vector2D,
+
+		add: function add (v2) {
+			this.x += v2.x;
+			this.y += v2.y;
+
+			return this;
+		},
+
+		div: function div (divisor) {
+			if( divisor === 0 ) throw 'Division by zero causes problems. Don\'t do it.';
+			this.x /= divisor;
+			this.y /= divisor;
+
+			return this;
+		},
+
+		limit: function limit ( max ) {
+			if( this.mag() > max ) this.normalise().mult( max );
+			return this;
+		},
+
+		mag: function mag () {
+			var x_squared = Math.pow( this.x, 2 );
+			var y_squared = Math.pow( this.y, 2 );
+
+			return Math.sqrt( x_squared + y_squared );
+		},
+
+		mult: function mult (scale) {
+			this.x *= scale;
+			this.y *= scale;
+
+			return this;
+		},
+
+		normalise: function normalise () {
+			return this.div( this.mag() );
+		},
+
+		set: function set (arg1, y) {
+			if( arg1 instanceof Vector2D ) {
+				this.x = arg1.x;
+				this.y = arg1.y;
+			} else {
+				if( typeof arg1 !== 'number' || typeof y !== 'number' ) {
+					throw 'Must supply eithr a Vector2D or two numbers';
+				}
+
+				this.x = arg1 || 0;
+				this.y = y || 0;
+			}
+
+			return this;
+		},
+
+		sub: function sub (v2) {
+			this.x -= v2.x;
+			this.y -= v2.y;
+
+			return this;
+		}
+	}
+
+	Vector2D.sum = function sum (v1, v2) {
+		return new Vector2D(
+			v1.x + v2.x,
+			v1.y + v2.y
+		);
+	}
+	</script>
+
+	<script>
+	// a ball
+	//
+	function Mover ( context ) {
+		this.dimensions = new Vector2D( 32, 18 );
+		this.position = new Vector2D(
+			0,
+			canvasHeight - this.dimensions.y * 1.5
+		);
+		this.velocity = new Vector2D();
+		this.acceleration = new Vector2D();
+		this.topspeed = 23;
+		this.context = context;
+	}
+
+	Mover.prototype = {
+		constructor: Mover,
+
+		update: function step () {
+			// make it cycle
+			if( this.position.x + this.dimensions.x > canvasWidth ){
+				this.position.x = -this.dimensions.x;
+			}
+
+			if( keyPressed )
+				switch( key ) {
+					case 'ArrowUp': this.acceleration.x = 0.05; break;
+					case 'ArrowDown': this.acceleration.x = -0.10; break;
+				}
+			else this.acceleration.x = 0;
+
+			this.velocity.add( this.acceleration );
+			this.velocity.limit(this.topspeed);
+			if(this.velocity.x <= 0.0) { this.velocity.mult(0); }
+			this.position.add( this.velocity );
+		},
+
+		draw: function draw () {
+			this.context.moveTo(this.position.x, this.position.y);
+			this.context.beginPath();
+			this.context.fillRect(
+				this.position.x,
+				this.position.y,
+				this.dimensions.x,
+				this.dimensions.y
+			);
+			// this.context.fill();
+		}
+	}
+	</script>
+
+	<script>
+	var canvas;
+	var canvasWidth = 640;
+	var canvasHeight = 360;
+	var context = null;
+	var keyPressed = false;
+	var key = null;
+
+	canvas = document.createElement( 'canvas' );
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
+	document.body.appendChild( canvas );
+
+	document.addEventListener( 'keydown', function (event) {
+		keyPressed = true;
+		key = event.key;
+	});
+
+	document.addEventListener( 'keyup', function (event) {
+		keyPressed = false;
+		key = '';
+	});
+
+	context = canvas.getContext( '2d' );
+	var mover = new Mover( context );
+
+	context.strokeColor = 'rgba(255,0,0,0.5)';
+	(function draw () {
+		context.clearRect( 0, 0, canvasWidth, canvasHeight );
+		mover.update();
+		mover.draw();
+		requestAnimationFrame( draw );
+	})();	</script>
+</body>
+</html>
