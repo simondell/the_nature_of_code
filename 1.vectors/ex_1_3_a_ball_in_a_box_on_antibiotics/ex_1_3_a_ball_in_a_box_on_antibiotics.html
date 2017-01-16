@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>A random walker and walker class</title>
+
+	<style>
+	canvas {
+		border: 1px solid grey;
+	}
+	</style>
+</head>
+<body>
+	<script>
+	var canvas = null;
+	var context = null;
+	var canvasWidth = 640;
+	var canvasHeight = 360;
+	var fov = 400;
+
+	// map to range
+	//
+	function mapToRange ( num, inputMin, inputMax, outputMin, outputMax ) {
+		// thanks SO: http://stackoverflow.com/questions/929103/convert-a-number-range-to-another-range-maintaining-ratio
+		var inputRange = inputMax - inputMin;
+		var outputRange = outputMax - outputMin;
+
+		if( inputRange === 0 ) throw 'Input range = 0';
+		if( outputRange === 0 ) throw 'Ouput range = 0';
+		if( num < inputMin || num > inputMax ) throw new RangeError( 'Num is outside of input range.' );
+
+		return ( ( ( num - inputMin ) * outputRange ) / inputRange ) + outputMin ;
+	}
+
+	// a 3d vector
+	//
+	function Vector3D (x, y, z) {
+		this.x = x || 0;
+		this.y = y || 0;
+		this.z = z || 0;
+	}
+
+	Vector3D.prototype = {
+		constructor: Vector3D,
+
+		set: function set (arg1, y, z) {
+			if( arg1 instanceof Vector3D ) {
+				this.x = arg1.x;
+				this.y = arg1.y;
+				this.z = arg1.z;
+			} else {
+				if( typeof arg1 !== 'number' || typeof y !== 'number' || typeof z !== 'number' ) {
+					throw 'Must supply eithr a Vector3D or three numbers';
+				}
+
+				this.x = arg1;
+				this.y = y;
+				this.z = z;
+			}
+		},
+
+		add: function add (v2) {
+			this.x += v2.x;
+			this.y += v2.y;
+			this.z += v2.z;
+		},
+	}
+
+	Vector3D.sum = function sum (v1, v2) {
+		return new Vector3D(
+			v1.x + v2.x,
+			v1.y + v2.y,
+			v1.z + v2.z
+		);
+	}
+
+	// a ball
+	//
+	function Bouncer ( context ) {
+		this.position = new Vector3D(
+			0,0,0
+		);
+		this.radius = 20;
+		this.velocity = new Vector3D( 10, 10, 10);
+
+		this.context = context;
+	}
+
+	Bouncer.prototype = {
+		constructor: Bouncer,
+		step: function step () {
+			// make it bounce
+			if( this.position.x + this.velocity.x < canvasWidth / -2
+			|| this.position.x + this.velocity.x > (canvasWidth / 2) ) {
+				this.velocity.x *= -1;
+			}
+
+			if( this.position.y + this.velocity.y < canvasHeight / -2
+			|| this.position.y + this.velocity.y > (canvasHeight / 2 ) ) {
+				this.velocity.y *= -1;
+			}
+
+			if( this.position.z + this.velocity.z < fov / -2
+			|| this.position.z + this.velocity.z > fov / 2 ) {
+				this.velocity.z *= -1;
+			}
+
+			this.position.add( this.velocity );
+		},
+
+		draw: function draw () {
+			var scale = fov / ( fov + this.position.z );
+			// var x2d = (this.position.x * scale);
+			// var y2d = (this.position.y * scale);
+			var x2d = (this.position.x * scale) + (canvasWidth / 2);
+			var y2d = (this.position.y * scale) + (canvasHeight / 2);
+
+			// this.context.moveTo(x2d, y2d);
+			this.context.beginPath();
+			this.context.arc(
+				x2d,
+				y2d,
+				this.radius * scale,
+				0,
+				2 * Math.PI
+			);
+			context.fillStyle = 'black';
+			this.context.fill();
+		}
+	}
+
+
+	canvas = document.createElement( 'canvas' );
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
+	context = canvas.getContext( '2d' );
+	document.body.appendChild( canvas );
+
+	var bouncer = new Bouncer( context );
+
+	(function draw () {
+		context.fillStyle = 'rgba(255,255,255,0.5)';
+		context.fillRect( 0, 0, canvasWidth, canvasHeight );
+		bouncer.step();
+		bouncer.draw();
+		requestAnimationFrame( draw );
+		// setTimeout( draw, 12 );
+	})();
+	</script>
+</body>
+</html>
