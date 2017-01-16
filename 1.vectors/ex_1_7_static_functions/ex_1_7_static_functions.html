@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Static vector functions</title>
+
+	<style>
+	canvas {
+		border: 1px solid grey;
+	}
+	</style>
+</head>
+<body>
+	<script>
+	function Vector2D (x, y) {
+		this.x = x || 0;
+		this.y = y || 0;
+	}
+
+	Vector2D.prototype = {
+		constructor: Vector2D,
+
+		add: function add (v2) {
+			this.x += v2.x;
+			this.y += v2.y;
+
+			return this;
+		},
+
+		div: function div (divisor) {
+			if( divisor === 0 ) throw 'Division by zero causes problems. Don\'t do it.';
+			this.x /= divisor;
+			this.y /= divisor;
+
+			return this;
+		},
+
+		limit: function limit ( max ) {
+			if( this.mag() > max ) this.normalise().mult( max );
+			return this;
+		},
+
+		mag: function mag () {
+			var x_squared = Math.pow( this.x, 2 );
+			var y_squared = Math.pow( this.y, 2 );
+
+			return Math.sqrt( x_squared + y_squared );
+		},
+
+		mult: function mult (multiplier) {
+			this.x *= multiplier;
+			this.y *= multiplier;
+
+			return this;
+		},
+
+		normalise: function normalise () {
+			return this.div( this.mag() );
+		},
+
+		set: function set (arg1, y) {
+			if( arg1 instanceof Vector2D ) {
+				this.x = arg1.x;
+				this.y = arg1.y;
+			} else {
+				if( typeof arg1 !== 'number' || typeof y !== 'number' ) {
+					throw 'Must supply eithr a Vector2D or two numbers';
+				}
+
+				this.x = arg1 || 0;
+				this.y = y || 0;
+			}
+
+			return this;
+		},
+
+		sub: function sub (v2) {
+			this.x -= v2.x;
+			this.y -= v2.y;
+
+			return this;
+		}
+	}
+
+	Vector2D.sum = function sum (v1, v2) {
+		return new Vector2D(
+			v1.x + v2.x,
+			v1.y + v2.y
+		);
+	}
+
+	Vector2D.diff = function diff (v1, v2) {
+		return new Vector2D(
+			v1.x - v2.x,
+			v1.y - v2.y
+		);
+	}
+
+	Vector2D.scale = function scale (factor, multiplier) {
+		return new Vector2D(
+			factor.x * multiplier,
+			factor.y * multiplier
+		);
+	}
+
+	Vector2D.quotient = function quotient (dividend, divisor) {
+		return new Vector2D(
+			dividend.x / divisor,
+			dividend.y / divisor
+		);
+	}
+
+console.log('The PVector v equals (1,5).');
+var v = new Vector2D(1,5);
+console.log(v);
+
+
+console.log('\n\nThe PVector u equals v multiplied by 2.');
+var u = Vector2D.scale( v, 2 );
+console.log(u.x === v.x * 2 && u.y === v.y * 2 );
+console.log(u);
+
+
+console.log('\n\nThe PVector w equals v minus u.');
+var w = Vector2D.diff( v, u );
+console.log(v.x - u.x === -1 && v.y - u.y === -5 );
+console.log(w);
+
+console.log('\n\nDivide the PVector w by 3.');
+w.div(3);
+console.log(w.x.toPrecision(5) === "-0.33333" && w.y.toPrecision(5) === "-1.6667");
+console.log(w);
+
+	</script>
+}
+</body>
+</html>
