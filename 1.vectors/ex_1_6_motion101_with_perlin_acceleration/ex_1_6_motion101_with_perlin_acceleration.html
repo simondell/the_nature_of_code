@@ -116,35 +116,61 @@
 	function Walker(context, x, y) {
 		this.context = context;
 		this.position = new Vector2D(x, y);
-		this.next_position = new Vector2D();
+		this.next_position = new Vector2D(x, y);
+		this.velocity = new Vector2D(0, 0);
+		this.acceleration = new Vector2D();
 		this.tx = Math.random();
-		this.ty = Math.random();
+		this.ty = Math.random()* 10000;
 	}
 
 	Walker.prototype.step = function () {
 		var t = 0.03
 		var perlin_x = noise.perlin2( this.tx, t );
-		var perlin_y = noise.perlin2( this.ty, t );
-		var step = new Vector2D(
-			mapToRange( perlin_x, -1, 1, -10, 10 ),
-			mapToRange( perlin_y, -1, 1, -10, 10 )
+		var perlin_y = noise.perlin2( t, this.ty );
+		this.acceleration.set(
+			mapToRange( perlin_x, -1, 1, -0.1, 0.1 ),
+			mapToRange( perlin_y, -1, 1,  -0.1, 0.1 )
 		);
 
-		this.next_position = Vector2D.sum( this.position, step );
-		this.tx += 0.02;
-		this.ty += 0.02;
+		this.velocity.add( this.acceleration );
+		this.velocity.limit( 50 );
+		this.next_position.add( this.velocity );
+
+		this.tx += 0.01;
+		this.ty += 0.01;
 
 		return this;
 	}
 
 	Walker.prototype.display = function () {
-		this.context.lineWidth = 1;
+		this.context.lineWidth = 5;
 		this.context.strokeStyle = 'rgba(0,0,0,0.1)';
 		this.context.moveTo( this.position.x, this.position.y );
 		this.context.lineTo( this.next_position.x, this.next_position.y );
 		this.context.stroke();
 
 		this.position.set( this.next_position );
+		if( this.position.x < 0 ) {
+			this.position.x = canvasWidth;
+			this.next_position.x = canvasWidth;
+		}
+
+		if( this.position.x > canvasWidth ) {
+			this.position.x = 0;
+			this.next_position.x = 0;
+		}
+
+		if( this.position.y < 0 ) {
+			this.position.y = canvasHeight;
+			this.next_position.y = canvasHeight;
+		}
+
+		if( this.position.y > canvasHeight ) {
+			this.position.y = 0;
+			this.next_position.y = 0;
+		}
+
+
 		return this;
 	}
 
@@ -162,10 +188,10 @@
 	context = canvas.getContext( '2d' );
 	walker = new Walker( context, canvasWidth / 2, canvasHeight / 2 );
 
-	requestAnimationFrame( function draw () {
+	setTimeout( function draw () {
 		walker.step()
 		walker.display();
-		requestAnimationFrame( draw );
+		setTimeout( draw, 20 );
 	});
 	</script>
 </body>
