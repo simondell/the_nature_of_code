@@ -12,11 +12,10 @@
 </head>
 <body>
 	<script>
-	var canvas = null;
-	var context = null;
+	var canvas;
 	var canvasWidth = 640;
 	var canvasHeight = 360;
-	var fov = 400;
+	var context = null;
 
 	// map to range
 	//
@@ -32,56 +31,52 @@
 		return ( ( ( num - inputMin ) * outputRange ) / inputRange ) + outputMin ;
 	}
 
-	// a 3d vector
+	// a 2d vector
 	//
-	function Vector3D (x, y, z) {
+	function Vector2D (x, y) {
 		this.x = x || 0;
 		this.y = y || 0;
-		this.z = z || 0;
 	}
 
-	Vector3D.prototype = {
-		constructor: Vector3D,
+	Vector2D.prototype = {
+		constructor: Vector2D,
 
-		set: function set (arg1, y, z) {
-			if( arg1 instanceof Vector3D ) {
+		set: function set (arg1, y) {
+			if( arg1 instanceof Vector2D ) {
 				this.x = arg1.x;
 				this.y = arg1.y;
-				this.z = arg1.z;
 			} else {
-				if( typeof arg1 !== 'number' || typeof y !== 'number' || typeof z !== 'number' ) {
-					throw 'Must supply eithr a Vector3D or three numbers';
+				if( typeof arg1 !== 'number' || typeof y !== 'number' ) {
+					throw 'Must supply eithr a Vector2D or two numbers';
 				}
 
-				this.x = arg1;
-				this.y = y;
-				this.z = z;
+				this.x = arg1 || 0;
+				this.y = y || 0;
 			}
 		},
 
 		add: function add (v2) {
 			this.x += v2.x;
 			this.y += v2.y;
-			this.z += v2.z;
 		},
 	}
 
-	Vector3D.sum = function sum (v1, v2) {
-		return new Vector3D(
+	Vector2D.sum = function sum (v1, v2) {
+		return new Vector2D(
 			v1.x + v2.x,
-			v1.y + v2.y,
-			v1.z + v2.z
+			v1.y + v2.y
 		);
 	}
 
 	// a ball
 	//
 	function Bouncer ( context ) {
-		this.position = new Vector3D(
-			0,0,0
+		this.position = new Vector2D(
+			canvasWidth / 2,
+			canvasHeight / 2
 		);
 		this.radius = 20;
-		this.velocity = new Vector3D( 10, 10, 10);
+		this.velocity = new Vector2D( 4, -3 );
 
 		this.context = context;
 	}
@@ -90,41 +85,28 @@
 		constructor: Bouncer,
 		step: function step () {
 			// make it bounce
-			if( this.position.x + this.velocity.x < canvasWidth / -2
-			|| this.position.x + this.velocity.x > (canvasWidth / 2) ) {
+			if( this.position.x + this.velocity.x < this.radius
+			|| this.position.x + this.velocity.x > (canvasWidth - this.radius)  ) {
 				this.velocity.x *= -1;
 			}
 
-			if( this.position.y + this.velocity.y < canvasHeight / -2
-			|| this.position.y + this.velocity.y > (canvasHeight / 2 ) ) {
+			if( this.position.y + this.velocity.y < this.radius
+			|| this.position.y + this.velocity.y > (canvasHeight - this.radius) ) {
 				this.velocity.y *= -1;
-			}
-
-			if( this.position.z + this.velocity.z < fov / -2
-			|| this.position.z + this.velocity.z > fov / 2 ) {
-				this.velocity.z *= -1;
 			}
 
 			this.position.add( this.velocity );
 		},
-
 		draw: function draw () {
-			var scale = fov / ( fov + this.position.z );
-			// var x2d = (this.position.x * scale);
-			// var y2d = (this.position.y * scale);
-			var x2d = (this.position.x * scale) + (canvasWidth / 2);
-			var y2d = (this.position.y * scale) + (canvasHeight / 2);
-
-			// this.context.moveTo(x2d, y2d);
+			this.context.moveTo(this.position.x, this.position.y);
 			this.context.beginPath();
 			this.context.arc(
-				x2d,
-				y2d,
-				this.radius * scale,
+				this.position.x,
+				this.position.y,
+				this.radius,
 				0,
 				2 * Math.PI
 			);
-			context.fillStyle = 'black';
 			this.context.fill();
 		}
 	}
@@ -138,13 +120,12 @@
 
 	var bouncer = new Bouncer( context );
 
+	context.strokeColor = 'rgba(255,0,0,0.5)';
 	(function draw () {
-		context.fillStyle = 'rgba(255,255,255,0.5)';
-		context.fillRect( 0, 0, canvasWidth, canvasHeight );
+		context.clearRect( 0, 0, canvasWidth, canvasHeight );
 		bouncer.step();
 		bouncer.draw();
 		requestAnimationFrame( draw );
-		// setTimeout( draw, 12 );
 	})();
 	</script>
 </body>
