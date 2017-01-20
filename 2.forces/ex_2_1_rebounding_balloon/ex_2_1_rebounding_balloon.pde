@@ -17,26 +17,26 @@ class Balloon {
   
   void update () {
 
-    if( location.y <= balloon_height ) {
-      PVector rebound = PVector.mult( PVector.add( velocity, acceleration ), -1.23 );
+    if( location.y <= balloon_height / 2 ) {
+      PVector rebound = new PVector( 0, velocity.y + acceleration.y );
+      rebound.y *= -1.23;
       applyForce( rebound );
     }
     
     velocity.add(acceleration);
-println(acceleration);
     velocity.limit( 15 );
     location.add(velocity);
     acceleration.mult(0);
   }
   
   void display () {
-    fill(255, 175, 32);
-    stroke(205, 125, 6);
+    fill(255, 175, 32, 0.5);
+    stroke(255, 175, 32, 0.5);
     ellipse( location.x, location.y, radius, balloon_height );
   }
 }
 
-Balloon balloon;
+Balloon[] balloons;
 PVector buoyancy;
 PVector gravity;
 PVector wind;
@@ -44,20 +44,29 @@ float t;
 
 void setup () {
   size( 396, 640 );
-  balloon = new Balloon( 0, height, 23 );
+  balloons = new Balloon[1];
+  balloons[0] = new Balloon( 0, height, 23 );
   buoyancy = new PVector( 0, -9.84 );
   gravity = new PVector( 0, 9.8 );
-  wind = new PVector( 1, 0 );
+  wind = new PVector( 0.01, 0 );
   t = 10000;
+}
+
+void mouseClicked() {
+  //Balloon new_one = new Balloon( mouse.x, mouse.y, 23 );
+  //balloons = append(balloons, new_one);
 }
 
 void draw () {
   //wind.x = noise( t ) * 0.01 + 1;
   background(255);
-  balloon.applyForce( gravity );
-  balloon.applyForce( buoyancy );
-  balloon.applyForce( wind );
-  balloon.update();
-  balloon.display();
+  int len = balloons.length;
+  for( int i = 0; i < len; i++ ) {
+    balloons[i].applyForce( gravity );
+    balloons[i].applyForce( buoyancy );
+    balloons[i].applyForce( wind );
+    balloons[i].update();
+    balloons[i].display();
+  }
   t += 0.01;
 }
