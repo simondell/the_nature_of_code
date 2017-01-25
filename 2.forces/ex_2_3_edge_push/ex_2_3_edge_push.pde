@@ -3,7 +3,7 @@ class Balloon {
   float radius;
   color skin;
   float mass;
-  
+
   Balloon (float x, float y, float m, color c) {
     skin = c;
     mass = m;
@@ -12,19 +12,19 @@ class Balloon {
     velocity = new PVector();
     acceleration = new PVector();
   }
-  
+
   void applyForce (PVector f) {
     PVector accel = PVector.div( f, mass );
     acceleration.add( accel );
   }
-  
+
   void update () {
     velocity.add(acceleration);
     velocity.limit( 15 );
     location.add(velocity);
     acceleration.mult(0);
   }
-  
+
   void display () {
     fill(skin);
     stroke(255);
@@ -36,27 +36,30 @@ class Balloon {
 
 
 Balloon[] balloons;
-PVector buoyancy;
-PVector gravity;
-PVector wind;
-float t;
 
-color getRandomColor() {
-  return color(random(255), random(255), random(255), random(255));
-}
-
-Balloon balloonFactory (float x, float y, float m) {
-  return new Balloon( x, y, m, getRandomColor() );
-}
-
+//
+// event handlers
+//
 void setup () {
   size( 640, 396 );
-  balloons = new Balloon[1];
-  balloons[0] = balloonFactory( 0, height, 3 );
-  buoyancy = new PVector( 0, -9.84 );
-  gravity = new PVector( 0, 9.8 );
-  wind = new PVector( 32, 0 );
-  t = 10000;
+
+  balloons = new Balloon[100];
+
+  int len = balloons.length;
+  for( int i = 0; i < len; i++ ) {
+	  balloons[i] = balloonFactory( random(width), random(height), 10 );
+  }
+}
+
+void draw () {
+  background(255);
+
+  int len = balloons.length;
+  for( int i = 0; i < len; i++ ) {
+    edgeEffect( balloons[i] );
+    balloons[i].update();
+    balloons[i].display();
+  }
 }
 
 void mousePressed() {
@@ -64,28 +67,36 @@ void mousePressed() {
   balloons = (Balloon[]) append(balloons, new_oone);
 }
 
-void draw () {
-  wind.x = noise( t ) * 0.007;
-  background(255);
-
-  int len = balloons.length;
-  for( int i = 0; i < len; i++ ) {
-    balloons[i].applyForce( gravity );
-    balloons[i].applyForce( buoyancy );
-    balloons[i].applyForce( wind );
-    detectCeiling(balloons[i]);
-    balloons[i].update();
-    balloons[i].display();
-  }
-  t += 0.01;
+//
+// helpers
+//
+color getRandomColor() {
+  return color(random(255), random(255), random(255), random(255));
 }
 
-void detectCeiling(Balloon balloon) {
-  PVector rebound;
-  
-  if( balloon.location.y <= balloon.radius / 2 ) {
-      rebound = balloon.velocity.copy();
-      rebound.mult(-1);
-      balloon.applyForce( rebound );
-    }
+Balloon balloonFactory (float x, float y, float m) {
+  PVector shove;
+  Balloon b = new Balloon( x, y, m, getRandomColor() );
+
+  shove = PVector.random2D();
+  shove.mult(random(-10, 10));
+  b.applyForce( shove );
+  return b;
+}
+
+void edgeEffect(Balloon balloon) {
+  PVector dn = PVector.sub( new PVector( balloon.location.x, 0 ), balloon.location );
+  PVector de = PVector.sub( new PVector( width, balloon.location.y ), balloon.location );
+  PVector ds = PVector.sub( new PVector( balloon.location.x, height ), balloon.location );
+  PVector dw = PVector.sub( new PVector( 0, balloon.location.y ), balloon.location );
+
+  PVector fn = PVector.mult( dn.div(1000), 1 / dn.mag() * dn.mag() );
+  PVector fe = PVector.mult( de.div(1000), 1 / de.mag() * de.mag() );
+  PVector fs = PVector.mult( ds.div(1000), 1 / ds.mag() * ds.mag() );
+  PVector fw = PVector.mult( dw.div(1000), 1 / dw.mag() * dw.mag() );
+
+  balloon.applyForce( fn );
+  balloon.applyForce( fe );
+  balloon.applyForce( fw );
+  balloon.applyForce( fs );
 }
