@@ -1,13 +1,13 @@
 class Balloon {
   PVector location, velocity, acceleration;
-  float extent;
+  float radius;
   color skin;
   float mass;
   
   Balloon (float x, float y, float m, color c) {
     skin = c;
     mass = m;
-    extent = m * 16.18;
+    radius = m * 10;
     location = new PVector(x, y);
     velocity = new PVector();
     acceleration = new PVector();
@@ -28,7 +28,7 @@ class Balloon {
   void display () {
     fill(skin);
     stroke(255);
-    ellipse( location.x, location.y, mass * 10, extent );
+    ellipse( location.x, location.y, radius, radius );
   }
 }
 
@@ -81,9 +81,11 @@ void draw () {
 }
 
 void detectCeiling(Balloon balloon) {
-    if( balloon.location.y <= balloon.extent / 2 ) {
-      PVector rebound = new PVector( 0, balloon.velocity.y + balloon.acceleration.y );
-      rebound.y *= -1.23;
+  PVector rebound;
+  
+  if( balloon.location.y <= balloon.radius / 2 ) {
+      rebound = balloon.velocity.copy();
+      rebound.mult(-1);
       balloon.applyForce( rebound );
     }
 }
