@@ -40,6 +40,9 @@ class Balloon {
 
 Balloon[] balloons;
 PVector gravity = new PVector(0, 0.7);
+PVector wind = new PVector(0.7, 0);
+
+
 
 //
 // event handlers
@@ -61,6 +64,7 @@ void draw () {
   int len = balloons.length;
   for( int i = 0; i < len; i++ ) {
   	balloons[i].applyForce( gravity );
+  	balloons[i].applyForce( wind );
     balloons[i].update();
     balloons[i].display();
   }
@@ -82,8 +86,8 @@ Balloon balloonFactory (float x, float y, float m) {
   PVector shove;
   Balloon b = new Balloon( x, y, m, getRandomColor() );
 
-  shove = PVector.random2D();
-  shove.mult(random(20));
-  b.applyForce( shove );
+  // shove = PVector.random2D();
+  // shove.mult(random(20));
+  // b.applyForce( shove );
   return b;
 }
