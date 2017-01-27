@@ -1,13 +1,13 @@
 class Balloon {
   PVector location, velocity, acceleration;
-  float radius;
+  float diameter;
   color skin;
   float mass;
 
   Balloon (float x, float y, float m, color c) {
     skin = c;
     mass = m;
-    radius = m * 10;
+    diameter = m * 10;
     location = new PVector(x, y);
     velocity = new PVector();
     acceleration = new PVector();
@@ -20,15 +20,18 @@ class Balloon {
 
   void update () {
     velocity.add(acceleration);
-    velocity.limit( 15 );
     location.add(velocity);
+
+    if( location.x <= 0 || location.x >= width ) velocity.x *= -1;
+    if( location.y <= 0 || location.y >= height ) velocity.y *= -1;
+
     acceleration.mult(0);
   }
 
   void display () {
     fill(skin);
     stroke(255);
-    ellipse( location.x, location.y, radius, radius );
+    ellipse( location.x, location.y, diameter, diameter );
   }
 }
 
@@ -36,7 +39,7 @@ class Balloon {
 
 
 Balloon[] balloons;
-PVector gravity = new PVector(0, 0.5);
+PVector gravity = new PVector(0, 0.7);
 
 //
 // event handlers
@@ -48,7 +51,7 @@ void setup () {
 
   int len = balloons.length;
   for( int i = 0; i < len; i++ ) {
-	  balloons[i] = balloonFactory( random(width), random(height), 10 );
+	balloons[i] = balloonFactory( random(width), random(height), 10 );
   }
 }
 
