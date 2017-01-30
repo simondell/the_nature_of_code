@@ -40,7 +40,7 @@ class Balloon {
 
 Balloon[] balloons;
 PVector gravity = new PVector(0, 0.7);
-PVector wind = new PVector(0.7, 0);
+PVector wind = new PVector(0.3, 0);
 
 
 
