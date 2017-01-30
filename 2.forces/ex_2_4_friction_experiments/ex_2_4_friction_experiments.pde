@@ -40,7 +40,7 @@ class Balloon {
 Balloon[] balloons;
 PVector gravity = new PVector(0, 0.7);
 PVector wind = new PVector(0.3, 0);
-PVector resist = new PVector(-0.4, -0.4);
+float resistanceForce = 0.5;
 
 
 
@@ -73,7 +73,7 @@ void draw () {
   for( int i = 0; i < len; i++ ) {
     boolean overlap = false;
     balloons[i].applyForce( gravity );
-    // balloons[i].applyForce( wind );
+    balloons[i].applyForce( wind );
 
     // resist??
     for(float xi = x; xi < x + w; xi++ ) {
@@ -88,7 +88,7 @@ void draw () {
     }
 
     if( overlap ) {
-       balloons[i].applyForce( resist );
+       balloons[i].velocity.mult( resistanceForce );
     }
 
     balloons[i].update();
