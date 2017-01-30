@@ -37,10 +37,10 @@ class Balloon {
 
 
 
-
 Balloon[] balloons;
 PVector gravity = new PVector(0, 0.7);
 PVector wind = new PVector(0.3, 0);
+PVector resist = new PVector(-0.4, -0.4);
 
 
 
@@ -54,17 +54,43 @@ void setup () {
 
   int len = balloons.length;
   for( int i = 0; i < len; i++ ) {
-	balloons[i] = balloonFactory( random(width), random(height), 10 );
+    balloons[i] = balloonFactory( random(width), random(height), 10 );
   }
+
 }
 
 void draw () {
   background(255);
+  float x = 100;
+  float y = height - 20;
+  float w = 100;
+  float h = 10;
+
+  fill(0);
+  rect ( x, y, w, h );
 
   int len = balloons.length;
   for( int i = 0; i < len; i++ ) {
-  	balloons[i].applyForce( gravity );
-  	balloons[i].applyForce( wind );
+    boolean overlap = false;
+    balloons[i].applyForce( gravity );
+    // balloons[i].applyForce( wind );
+
+    // resist??
+    for(float xi = x; xi < x + w; xi++ ) {
+      for( float yi = y; yi < y + h; yi++ ) {
+        PVector p = new PVector( xi, yi );
+        if( PVector.sub(p, balloons[i].location).mag() < balloons[i].diameter ) {
+          overlap = true;
+          break;
+        }
+      }
+      if( overlap ) break;
+    }
+
+    if( overlap ) {
+       balloons[i].applyForce( resist );
+    }
+
     balloons[i].update();
     balloons[i].display();
   }
@@ -83,7 +109,7 @@ color getRandomColor() {
 }
 
 Balloon balloonFactory (float x, float y, float m) {
-  PVector shove;
+  //PVector shove;
   Balloon b = new Balloon( x, y, m, getRandomColor() );
 
   // shove = PVector.random2D();
