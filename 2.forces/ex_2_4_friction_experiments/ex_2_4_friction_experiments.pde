@@ -100,7 +100,7 @@ void mousePressed() {
 // helpers
 //
 color getRandomColor() {
-  return color(random(255), random(255), random(255) );
+  return color(random(42, 255), random(42, 255), random(42, 255) );
 }
 
 Balloon balloonFactory (float x, float y, float m) {
