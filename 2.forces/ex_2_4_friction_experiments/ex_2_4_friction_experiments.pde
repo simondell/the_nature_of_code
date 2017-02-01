@@ -125,32 +125,16 @@ boolean overlap(
     float max_y = y + h;
     boolean overlap = false;
 
-    // top
-    for( float i = x; i < max_x; i++ ){
-        p.y = y;
-        p.x = i;
-        if( p.sub(b.location).mag() < b.radius ) overlap = true;
-    }
-
-    // right
-    for( float j = y; j < max_y; j++ ) {
-        p.x = max_x;
-        p.y = j;
-        if( p.sub(b.location).mag() < b.radius ) overlap =  true;
-    }
-
-    // bottom
-    for( float k = x; k < max_x; k++ ) {
-        p.y = max_y;
-        p.x = k;
-        if( p.sub(b.location).mag() < b.radius ) overlap =  true;
-    }
-
-    // left
-    for( float l = y; l < max_y; l++ ) {
-        p.x = max_x;
-        p.y = l;
-        if( p.sub(b.location).mag() < b.radius ) overlap =  true;
+    for( float xi = x; xi <= max_x; xi += b.radius - 1 ) {
+        for( float yi = y; yi <= max_y; yi += b.radius - 1 ) {
+            p.x = xi;
+            p.y = yi;
+            if( p.sub(b.location).mag() < b.radius ) {
+                overlap = true;
+                break;
+            }
+        }
+        if( overlap ) break;
     }
 
     return overlap;
