@@ -1,13 +1,13 @@
 class Balloon {
   PVector location, velocity, acceleration;
-  float diameter;
+  float radius;
   color skin;
   float mass;
 
   Balloon (float x, float y, float m, color c) {
     skin = c;
     mass = m;
-    diameter = m * 10;
+    radius = m * 5;
     location = new PVector(x, y);
     velocity = new PVector();
     acceleration = new PVector();
@@ -28,10 +28,12 @@ class Balloon {
     acceleration.mult(0);
   }
 
-  void display () {
-    fill(skin);
-    stroke(255);
-    ellipse( location.x, location.y, diameter, diameter );
+  void display (boolean resisted) {
+    color c = resisted ? 0 : skin;
+
+    fill(c);
+    stroke(c);
+    ellipse( location.x, location.y, radius * 2, radius  * 2 );
   }
 }
 
@@ -40,7 +42,8 @@ class Balloon {
 Balloon[] balloons;
 PVector gravity = new PVector(0, 0.7);
 PVector wind = new PVector(0.3, 0);
-float resistanceForce = 0.5;
+float mu = 1.1;
+float n = 1;
 
 
 
@@ -61,38 +64,30 @@ void setup () {
 
 void draw () {
   background(255);
-  float x = 100;
-  float y = height - 20;
   float w = 100;
-  float h = 10;
+  float h = 100;
+  float x = width / 2 - w / 2;
+  float y = height / 2 - h / 2;
 
   fill(0);
   rect ( x, y, w, h );
 
   int len = balloons.length;
   for( int i = 0; i < len; i++ ) {
-    boolean overlap = false;
+    boolean resisted = false;
     balloons[i].applyForce( gravity );
-    balloons[i].applyForce( wind );
+    // balloons[i].applyForce( wind );
 
-    // resist??
-    for(float xi = x; xi < x + w; xi++ ) {
-      for( float yi = y; yi < y + h; yi++ ) {
-        PVector p = new PVector( xi, yi );
-        if( PVector.sub(p, balloons[i].location).mag() < balloons[i].diameter ) {
-          overlap = true;
-          break;
-        }
-      }
-      if( overlap ) break;
-    }
-
-    if( overlap ) {
-       balloons[i].velocity.mult( resistanceForce );
+    resisted = overlap(balloons[i], x, y, w, h );
+    if( resisted ) {
+        PVector friction = balloons[i].velocity.copy();
+        friction.normalize();
+        friction.mult(n * mu * -1);
+        balloons[i].applyForce( friction );
     }
 
     balloons[i].update();
-    balloons[i].display();
+    balloons[i].display( resisted );
   }
 }
 
@@ -105,15 +100,58 @@ void mousePressed() {
 // helpers
 //
 color getRandomColor() {
-  return color(random(255), random(255), random(255), random(255));
+  return color(random(255), random(255), random(255) );
 }
 
 Balloon balloonFactory (float x, float y, float m) {
-  //PVector shove;
+  PVector shove;
   Balloon b = new Balloon( x, y, m, getRandomColor() );
 
-  // shove = PVector.random2D();
-  // shove.mult(random(20));
-  // b.applyForce( shove );
+  shove = PVector.random2D();
+  shove.mult(random(20));
+  b.applyForce( shove );
   return b;
+}
+
+boolean overlap(
+    Balloon b,
+    float x,
+    float y,
+    float w,
+    float h
+) {
+    PVector p = new PVector();
+    float max_x = x + w;
+    float max_y = y + h;
+    boolean overlap = false;
+
+    // top
+    for( float i = x; i < max_x; i++ ){
+        p.y = y;
+        p.x = i;
+        if( p.sub(b.location).mag() < b.radius ) overlap = true;
+    }
+
+    // right
+    for( float j = y; j < max_y; j++ ) {
+        p.x = max_x;
+        p.y = j;
+        if( p.sub(b.location).mag() < b.radius ) overlap =  true;
+    }
+
+    // bottom
+    for( float k = x; k < max_x; k++ ) {
+        p.y = max_y;
+        p.x = k;
+        if( p.sub(b.location).mag() < b.radius ) overlap =  true;
+    }
+
+    // left
+    for( float l = y; l < max_y; l++ ) {
+        p.x = max_x;
+        p.y = l;
+        if( p.sub(b.location).mag() < b.radius ) overlap =  true;
+    }
+
+    return overlap;
 }
