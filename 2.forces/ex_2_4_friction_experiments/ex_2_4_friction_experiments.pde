@@ -38,6 +38,11 @@ class Balloon {
 }
 
 
+int X = 0;
+int Y = 1;
+int WIDTH = 2;
+int HEIGHT = 3;
+
 
 Balloon[] balloons;
 PVector gravity = new PVector(0, 0.7);
@@ -45,6 +50,9 @@ PVector wind = new PVector(0.3, 0);
 float mu = 1.1;
 float n = 1;
 
+float w = 100;
+float h = 100;
+float[] resistor;
 
 
 //
@@ -53,24 +61,25 @@ float n = 1;
 void setup () {
   size( 640, 396 );
 
+  resistor = new float[4];
+  resistor[X] = width / 2 - w / 2;
+  resistor[Y] = height / 2 - h / 2;
+  resistor[WIDTH] = w;
+  resistor[HEIGHT] = h;
+
   balloons = new Balloon[1];
 
   int len = balloons.length;
   for( int i = 0; i < len; i++ ) {
     balloons[i] = balloonFactory( random(width), random(height), 10 );
   }
-
 }
 
 void draw () {
   background(255);
-  float w = 100;
-  float h = 100;
-  float x = width / 2 - w / 2;
-  float y = height / 2 - h / 2;
 
   fill(0);
-  rect ( x, y, w, h );
+  rect( resistor[X], resistor[Y], resistor[WIDTH], resistor[HEIGHT] );
 
   int len = balloons.length;
   for( int i = 0; i < len; i++ ) {
@@ -78,7 +87,7 @@ void draw () {
     balloons[i].applyForce( gravity );
     // balloons[i].applyForce( wind );
 
-    resisted = overlap(balloons[i], x, y, w, h );
+    resisted = overlap(balloons[i], resistor[0], resistor[1], resistor[2], resistor[3] );
     if( resisted ) {
         PVector friction = balloons[i].velocity.copy();
         friction.normalize();
