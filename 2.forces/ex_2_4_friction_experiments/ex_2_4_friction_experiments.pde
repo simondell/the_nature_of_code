@@ -47,7 +47,7 @@ int HEIGHT = 3;
 Balloon[] balloons;
 PVector gravity = new PVector(0, 0.7);
 PVector wind = new PVector(0.3, 0);
-float mu = 1.1;
+float mu = 0.8;
 float n = 1;
 
 float w = 100;
