@@ -1,8 +1,12 @@
+HighlightState highlightState;
+enum HighlightState { DONT,RESISTED,ACCELERATED }
+
 class Balloon {
   PVector location, velocity, acceleration;
   float radius;
   color skin;
   float mass;
+  HighlightState highlight;
 
   Balloon (float x, float y, float m, color c) {
     skin = c;
@@ -28,8 +32,14 @@ class Balloon {
     acceleration.mult(0);
   }
 
-  void display (boolean resisted) {
-    color c = resisted ? 0 : skin;
+  void display () {
+    color c;
+
+    switch( highlight ) {
+        case RESISTED: c = 0; break;
+        case ACCELERATED: c = #ff0000; break;
+        default: c = skin;
+    }
 
     fill(c);
     stroke(c);
@@ -38,21 +48,24 @@ class Balloon {
 }
 
 
-int X = 0;
-int Y = 1;
-int WIDTH = 2;
-int HEIGHT = 3;
+// CONSTANTS
+final int X = 0;
+final int Y = 1;
+final int WIDTH = 2;
+final int HEIGHT = 3;
 
-
+// Variables
 Balloon[] balloons;
 PVector gravity = new PVector(0, 0.7);
 PVector wind = new PVector(0.3, 0);
 float mu = 0.8;
+float um = 1.2;
 float n = 1;
 
 float w = 100;
 float h = 100;
 float[] resistor;
+float[] accelerator;
 
 
 //
@@ -62,10 +75,16 @@ void setup () {
   size( 640, 396 );
 
   resistor = new float[4];
-  resistor[X] = width / 2 - w / 2;
+  resistor[X] = width / 2 - w;
   resistor[Y] = height / 2 - h / 2;
   resistor[WIDTH] = w;
   resistor[HEIGHT] = h;
+
+  accelerator = new float[4];
+  accelerator[X] = width / 2;
+  accelerator[Y] = height / 2 - h / 2;
+  accelerator[WIDTH] = w;
+  accelerator[HEIGHT] = h;
 
   balloons = new Balloon[1];
 
@@ -80,23 +99,38 @@ void draw () {
 
   fill(0);
   rect( resistor[X], resistor[Y], resistor[WIDTH], resistor[HEIGHT] );
+  fill(#ff0000);
+  rect( accelerator[X], accelerator[Y], accelerator[WIDTH], accelerator[HEIGHT] );
 
   int len = balloons.length;
   for( int i = 0; i < len; i++ ) {
     boolean resisted = false;
+    boolean acclerated = false;
+
+    balloons[i].highlight = HighlightState.DONT;
     balloons[i].applyForce( gravity );
     // balloons[i].applyForce( wind );
 
-    resisted = overlap(balloons[i], resistor[0], resistor[1], resistor[2], resistor[3] );
+    resisted = overlap(balloons[i], resistor[X], resistor[Y], resistor[WIDTH], resistor[HEIGHT] );
     if( resisted ) {
         PVector friction = balloons[i].velocity.copy();
         friction.normalize();
         friction.mult(n * mu * -1);
         balloons[i].applyForce( friction );
+        balloons[i].highlight = HighlightState.RESISTED;
+    }
+
+    acclerated = overlap(balloons[i], accelerator[X], accelerator[Y], accelerator[WIDTH], accelerator[HEIGHT] );
+    if( acclerated ) {
+        PVector boost = balloons[i].velocity.copy();
+        boost.normalize();
+        boost.mult(n * um);
+        balloons[i].applyForce( boost );
+        balloons[i].highlight = HighlightState.ACCELERATED;
     }
 
     balloons[i].update();
-    balloons[i].display( resisted );
+    balloons[i].display();
   }
 }
 
