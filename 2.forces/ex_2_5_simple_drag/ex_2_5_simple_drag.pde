@@ -122,14 +122,13 @@ PVector gravity = new PVector(0, 0.7);
 // event handlers
 //
 void setup () {
-  size( 640, 396 );
+  size( 396, 640 );
 
-  balloons = new Balloon[1];
+  balloons = new Balloon[3];
 
-  int len = balloons.length;
-  for( int i = 0; i < len; i++ ) {
-    balloons[i] = balloonFactory( random(width), random(height), 10 );
-  }
+  balloons[0] = balloonFactory( width / 3, 0, 5 );
+  balloons[1] = balloonFactory( width / 2, height / 3, 5 );
+  balloons[2] = balloonFactory( 2 * width / 3, height / 3, 5 );
 
   liquid = new Liquid(0, 2 * height / 3, width, height/3, 0.4);
 }
@@ -152,8 +151,13 @@ void draw () {
 }
 
 void mousePressed() {
-  Balloon new_oone = balloonFactory( mouseX, mouseY, random(10) );
-  balloons = (Balloon[]) append(balloons, new_oone);
+  Balloon new_one = balloonFactory( width / 3, 0, 5 );
+  Balloon new_two = balloonFactory( width / 2, height / 3, 5 );
+  Balloon new_three = balloonFactory( 2 * width / 3, height / 3, 5 );
+
+  balloons = (Balloon[]) append(balloons, new_one);
+  balloons = (Balloon[]) append(balloons, new_two);
+  balloons = (Balloon[]) append(balloons, new_three);
 }
 
 
