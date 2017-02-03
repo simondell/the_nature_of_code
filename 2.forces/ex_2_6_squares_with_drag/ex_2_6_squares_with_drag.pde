@@ -68,7 +68,7 @@ class Mover {
   void drag(Liquid l) {
     float speed = velocity.mag();
     // The force’s magnitude: Cd * v~2~
-    float dragMagnitude = l.c * speed * speed;
+    float dragMagnitude = l.c * speed * speed * (mass / 3);
 
     PVector drag = velocity.get();
     drag.mult(-1);
