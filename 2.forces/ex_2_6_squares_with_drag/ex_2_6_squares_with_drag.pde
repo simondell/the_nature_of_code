@@ -47,9 +47,9 @@ class Mover {
     color c;
 
     switch( highlight ) {
-        case RESISTED: c = puce; break;
-        case ACCELERATED: c = purple; break;
-        default: c = tan;
+      case RESISTED: c = puce; break;
+      case ACCELERATED: c = purple; break;
+      default: c = tan;
     }
 
     noStroke();
@@ -58,15 +58,11 @@ class Mover {
   }
 
   boolean isInside(Liquid l) {
-    // This conditional statement determines if the PVector location is inside the rectangle defined by the Liquid class.
-    // if (location.x>l.x && location.x<l.x+l.w && location.y>l.y && location.y<l.y+l.h)
-    // {
-    //   return true;
-    // } else {
-    //   return false;
-    // }
-
-    return (location.x>l.x && location.x<l.x+l.w && location.y>l.y && location.y<l.y+l.h);
+    return (location.x>l.x
+      && location.x<l.x+l.w
+      && location.y>l.y
+      && location.y<l.y+l.h
+    );
   }
 
   void drag(Liquid l) {
@@ -126,9 +122,9 @@ void setup () {
 
   movers = new Mover[3];
 
-  movers[0] = moverFactory( width / 3, 0, 5 );
-  movers[1] = moverFactory( width / 2, height / 3, 5 );
-  movers[2] = moverFactory( 2 * width / 3, height / 3, 5 );
+  movers[0] = moverFactory( width / 3, 0, random( 2, 8 ) );
+  movers[1] = moverFactory( width / 2, height / 3, random( 2, 8 ) );
+  movers[2] = moverFactory( 2 * width / 3, height / 3, random( 2, 8 ) );
 
   liquid = new Liquid(0, 2 * height / 3, width, height/3, 0.4);
 }
@@ -151,9 +147,9 @@ void draw () {
 }
 
 void mousePressed() {
-  Mover new_one = moverFactory( width / 3, 0, 5 );
-  Mover new_two = moverFactory( width / 2, height / 3, 5 );
-  Mover new_three = moverFactory( 2 * width / 3, height / 3, 5 );
+  Mover new_one = moverFactory( width / 3, 0, random( 2, 8 ) );
+  Mover new_two = moverFactory( width / 2, height / 3, random( 2, 8 ) );
+  Mover new_three = moverFactory( 2 * width / 3, height / 3, random( 2, 8 ) );
 
   movers = (Mover[]) append(movers, new_one);
   movers = (Mover[]) append(movers, new_two);
