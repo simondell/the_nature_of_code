@@ -54,7 +54,7 @@ class Mover {
 
     noStroke();
     fill(c);
-    ellipse( location.x, location.y, radius * 2, radius  * 2 );
+    rect( location.x - radius, location.y  - radius, radius * 2, radius  * 2 );
   }
 
   boolean isInside(Liquid l) {
